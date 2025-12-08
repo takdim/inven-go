@@ -1,0 +1,125 @@
+{% extends "base.html" %} {% block title %}{{ title }} - Inven-Go{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="fas fa-box"></i> {{ title }}</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+              {{ form.kode_barang.label(class="form-label fw-bold") }} {{
+              form.kode_barang(class="form-control", placeholder="Contoh:
+              BRG001") }} {% if form.kode_barang.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.kode_barang.errors %}
+                <div><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.nama_barang.label(class="form-label fw-bold") }} {{
+              form.nama_barang(class="form-control", placeholder="Nama barang")
+              }} {% if form.nama_barang.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.nama_barang.errors %}
+                <div><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                {{ form.kategori_id.label(class="form-label fw-bold") }} {{
+                form.kategori_id(class="form-select") }} {% if
+                form.kategori_id.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.kategori_id.errors %}
+                  <div>
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+
+              <div class="col-md-6 mb-3">
+                {{ form.merk_id.label(class="form-label fw-bold") }} {{
+                form.merk_id(class="form-select") }} {% if form.merk_id.errors
+                %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.merk_id.errors %}
+                  <div>
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              {{ form.spesifikasi.label(class="form-label fw-bold") }} {{
+              form.spesifikasi(class="form-control", rows="3",
+              placeholder="Contoh: Intel Core i5, RAM 8GB, SSD 256GB") }} {% if
+              form.spesifikasi.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.spesifikasi.errors %}
+                <div><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                {{ form.satuan.label(class="form-label fw-bold") }} {{
+                form.satuan(class="form-control", placeholder="Contoh: Pcs, Kg,
+                Box") }} {% if form.satuan.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.satuan.errors %}
+                  <div>
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+
+              <div class="col-md-6 mb-3">
+                {{ form.stok_awal.label(class="form-label fw-bold") }} {{
+                form.stok_awal(class="form-control", placeholder="0") }} {% if
+                form.stok_awal.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.stok_awal.errors %}
+                  <div>
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <hr />
+
+            <div class="d-flex justify-content-between">
+              <a href="{{ url_for('barang.index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Kembali
+              </a>
+              {{ form.submit(class="btn btn-primary") }}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

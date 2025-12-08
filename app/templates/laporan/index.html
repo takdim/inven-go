@@ -1,0 +1,119 @@
+{% extends "base.html" %} {% block content %}
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2><i class="fas fa-file-alt"></i> Laporan</h2>
+      <p class="text-muted">
+        Pilih jenis laporan yang ingin Anda tampilkan atau export
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Laporan Barang -->
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card border-primary h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <div class="flex-shrink-0">
+              <i class="fas fa-boxes fa-3x text-primary"></i>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <h5 class="card-title mb-0">Daftar Barang</h5>
+              <small class="text-muted">Master Data Barang</small>
+            </div>
+          </div>
+          <p class="card-text">
+            Laporan lengkap daftar barang dengan informasi kategori, merk, dan
+            stok.
+          </p>
+          <a
+            href="{{ url_for('laporan.laporan_barang') }}"
+            class="btn btn-primary w-100"
+          >
+            <i class="fas fa-eye"></i> Lihat Laporan
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Laporan Kontrak -->
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card border-success h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <div class="flex-shrink-0">
+              <i class="fas fa-file-contract fa-3x text-success"></i>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <h5 class="card-title mb-0">Daftar Kontrak/SPK</h5>
+              <small class="text-muted">Master Data Kontrak</small>
+            </div>
+          </div>
+          <p class="card-text">
+            Laporan daftar kontrak/SPK dengan detail barang dan nilai kontrak.
+          </p>
+          <a
+            href="{{ url_for('laporan.laporan_kontrak') }}"
+            class="btn btn-success w-100"
+          >
+            <i class="fas fa-eye"></i> Lihat Laporan
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Laporan Barang Masuk -->
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card border-info h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <div class="flex-shrink-0">
+              <i class="fas fa-arrow-circle-down fa-3x text-info"></i>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <h5 class="card-title mb-0">Barang Masuk</h5>
+              <small class="text-muted">Transaksi Masuk</small>
+            </div>
+          </div>
+          <p class="card-text">
+            Laporan transaksi barang masuk berdasarkan periode tertentu.
+          </p>
+          <a
+            href="{{ url_for('laporan.laporan_transaksi_masuk') }}"
+            class="btn btn-info w-100"
+          >
+            <i class="fas fa-eye"></i> Lihat Laporan
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Laporan Barang Keluar -->
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card border-warning h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <div class="flex-shrink-0">
+              <i class="fas fa-arrow-circle-up fa-3x text-warning"></i>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <h5 class="card-title mb-0">Barang Keluar</h5>
+              <small class="text-muted">Transaksi Keluar</small>
+            </div>
+          </div>
+          <p class="card-text">
+            Laporan transaksi barang keluar berdasarkan periode tertentu.
+          </p>
+          <a
+            href="{{ url_for('laporan.laporan_transaksi_keluar') }}"
+            class="btn btn-warning w-100"
+          >
+            <i class="fas fa-eye"></i> Lihat Laporan
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

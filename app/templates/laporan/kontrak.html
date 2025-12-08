@@ -1,0 +1,120 @@
+{% extends "base.html" %} {% block content %}
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2><i class="fas fa-file-contract"></i> Laporan Daftar Kontrak/SPK</h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('laporan.index') }}">Laporan</a>
+          </li>
+          <li class="breadcrumb-item active">Daftar Kontrak</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Filter Form -->
+  <div class="card mb-4">
+    <div class="card-header"><i class="fas fa-filter"></i> Filter Laporan</div>
+    <div class="card-body">
+      <form method="GET" action="{{ url_for('laporan.laporan_kontrak') }}">
+        <div class="row">
+          <div class="col-md-4">
+            {{ form.tahun.label(class="form-label") }} {{
+            form.tahun(class="form-select") }}
+          </div>
+          <div class="col-md-4">
+            {{ form.bulan.label(class="form-label") }} {{
+            form.bulan(class="form-select") }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">&nbsp;</label>
+            <div class="d-grid gap-2">
+              {{ form.submit(class="btn btn-primary") }}
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Export Buttons -->
+  <div class="row mb-3">
+    <div class="col-12">
+      <div class="btn-group" role="group">
+        <a
+          href="{{ url_for('laporan.export_kontrak_excel', **request.args) }}"
+          class="btn btn-success"
+        >
+          <i class="fas fa-file-excel"></i> Export Excel
+        </a>
+        <a
+          href="{{ url_for('laporan.export_kontrak_pdf', **request.args) }}"
+          class="btn btn-danger"
+        >
+          <i class="fas fa-file-pdf"></i> Export PDF
+        </a>
+      </div>
+      <span class="ms-3 text-muted"
+        >Total: <strong>{{ kontrak_list|length }}</strong> kontrak</span
+      >
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th>No</th>
+              <th>Nomor Kontrak</th>
+              <th>Tanggal</th>
+              <th>Deskripsi</th>
+              <th>Jumlah Barang</th>
+              <th>Total Qty</th>
+              <th class="text-end">Total Nilai (Rp)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if kontrak_list %} {% set total_nilai = 0 %} {% for kontrak in
+            kontrak_list %} {% set nilai_kontrak = kontrak.get_total_nilai() %}
+            {% set total_nilai = total_nilai + nilai_kontrak %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>
+                <a href="{{ url_for('kontrak.detail', id=kontrak.id) }}"
+                  >{{ kontrak.nomor_kontrak }}</a
+                >
+              </td>
+              <td>{{ kontrak.tanggal_kontrak.strftime('%d/%m/%Y') }}</td>
+              <td>
+                {{ kontrak.deskripsi[:50] + '...' if kontrak.deskripsi and
+                kontrak.deskripsi|length > 50 else (kontrak.deskripsi or '-') }}
+              </td>
+              <td>{{ kontrak.barang_kontrak.count() }}</td>
+              <td>{{ kontrak.get_total_qty() }}</td>
+              <td class="text-end">
+                {{ "{:,.0f}".format(nilai_kontrak) if nilai_kontrak > 0 else '-'
+                }}
+              </td>
+            </tr>
+            {% endfor %}
+            <tr class="table-secondary fw-bold">
+              <td colspan="6" class="text-end">TOTAL:</td>
+              <td class="text-end">{{ "{:,.0f}".format(total_nilai) }}</td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="7" class="text-center">Tidak ada data</td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

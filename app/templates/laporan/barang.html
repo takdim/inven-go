@@ -1,0 +1,124 @@
+{% extends "base.html" %} {% block content %}
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2><i class="fas fa-boxes"></i> Laporan Daftar Barang</h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('laporan.index') }}">Laporan</a>
+          </li>
+          <li class="breadcrumb-item active">Daftar Barang</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Filter Form -->
+  <div class="card mb-4">
+    <div class="card-header"><i class="fas fa-filter"></i> Filter Laporan</div>
+    <div class="card-body">
+      <form method="GET" action="{{ url_for('laporan.laporan_barang') }}">
+        <div class="row">
+          <div class="col-md-3">
+            {{ form.kategori_id.label(class="form-label") }} {{
+            form.kategori_id(class="form-select") }}
+          </div>
+          <div class="col-md-3">
+            {{ form.merk_id.label(class="form-label") }} {{
+            form.merk_id(class="form-select") }}
+          </div>
+          <div class="col-md-3">
+            {{ form.status.label(class="form-label") }} {{
+            form.status(class="form-select") }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">&nbsp;</label>
+            <div class="d-grid gap-2">
+              {{ form.submit(class="btn btn-primary") }}
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Export Buttons -->
+  <div class="row mb-3">
+    <div class="col-12">
+      <div class="btn-group" role="group">
+        <a
+          href="{{ url_for('laporan.export_barang_excel', **request.args) }}"
+          class="btn btn-success"
+        >
+          <i class="fas fa-file-excel"></i> Export Excel
+        </a>
+        <a
+          href="{{ url_for('laporan.export_barang_pdf', **request.args) }}"
+          class="btn btn-danger"
+        >
+          <i class="fas fa-file-pdf"></i> Export PDF
+        </a>
+      </div>
+      <span class="ms-3 text-muted"
+        >Total: <strong>{{ data|length }}</strong> item</span
+      >
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th>No</th>
+              <th>Kode Barang</th>
+              <th>Nama Barang</th>
+              <th>Kategori</th>
+              <th>Merk</th>
+              <th>Satuan</th>
+              <th>Stok Awal</th>
+              <th>Stok Akhir</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if data %} {% for item in data %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ item.barang.kode_barang }}</td>
+              <td>{{ item.barang.nama_barang }}</td>
+              <td>
+                {{ item.barang.kategori.nama_kategori if item.barang.kategori
+                else '-' }}
+              </td>
+              <td>
+                {{ item.barang.merk.nama_merk if item.barang.merk else '-' }}
+              </td>
+              <td>{{ item.barang.satuan }}</td>
+              <td>{{ item.barang.stok_awal }}</td>
+              <td>{{ item.stok_akhir }}</td>
+              <td>
+                {% if item.stok_akhir < 10 %}
+                <span class="badge bg-danger">RENDAH</span>
+                {% elif item.stok_akhir < 50 %}
+                <span class="badge bg-warning">SEDANG</span>
+                {% else %}
+                <span class="badge bg-success">AMAN</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %} {% else %}
+            <tr>
+              <td colspan="9" class="text-center">Tidak ada data</td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

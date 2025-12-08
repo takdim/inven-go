@@ -1,0 +1,391 @@
+{% extends "base.html" %} {% block title %}{{ title }} - Inven-Go{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <!-- Breadcrumb -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2 class="mb-0"><i class="fas fa-info-circle"></i> Detail Barang</h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('barang.index') }}">Data Barang</a>
+          </li>
+          <li class="breadcrumb-item active">{{ barang.nama_barang }}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Informasi Utama Barang -->
+  <div class="row mb-4">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div
+          class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+        >
+          <h5 class="mb-0"><i class="fas fa-box"></i> Informasi Barang</h5>
+          <div>
+            <a
+              href="{{ url_for('barang.edit', id=barang.id) }}"
+              class="btn btn-sm btn-warning"
+            >
+              <i class="fas fa-edit"></i> Edit
+            </a>
+            <a
+              href="{{ url_for('barang.index') }}"
+              class="btn btn-sm btn-light"
+            >
+              <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <!-- Kode Barang -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Kode Barang</label>
+              <div class="fw-bold">
+                <code class="fs-5">{{ barang.kode_barang }}</code>
+              </div>
+            </div>
+
+            <!-- Nama Barang -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Nama Barang</label>
+              <div class="fw-bold fs-5">{{ barang.nama_barang }}</div>
+            </div>
+
+            <!-- Kategori -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Kategori</label>
+              <div>
+                {% if barang.kategori %}
+                <span class="badge bg-info fs-6">
+                  <i class="fas fa-folder"></i> {{ barang.kategori.nama_kategori
+                  }}
+                </span>
+                {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Merk -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Merk</label>
+              <div>
+                {% if barang.merk %}
+                <span class="badge bg-secondary fs-6">
+                  <i class="fas fa-tag"></i> {{ barang.merk.nama_merk }}
+                </span>
+                {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Spesifikasi -->
+            <div class="col-12 mb-3">
+              <label class="text-muted small mb-1">Spesifikasi</label>
+              <div class="border rounded p-3 bg-light">
+                {% if barang.spesifikasi %}
+                <pre class="mb-0" style="white-space: pre-wrap">
+{{ barang.spesifikasi }}</pre
+                >
+                {% else %}
+                <span class="text-muted fst-italic">Tidak ada spesifikasi</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Nomor Kontrak/SPK -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">
+                <i class="fas fa-file-contract"></i> Nomor Kontrak/SPK
+              </label>
+              <div class="fw-bold">
+                {% if barang.nomor_kontrak %}
+                <span class="badge bg-success fs-6"
+                  >{{ barang.nomor_kontrak }}</span
+                >
+                {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Tanggal Kontrak/SPK -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">
+                <i class="fas fa-calendar-alt"></i> Tanggal Kontrak/SPK
+              </label>
+              <div class="fw-bold">
+                {% if barang.tanggal_kontrak %} {{
+                barang.tanggal_kontrak.strftime('%d %B %Y') }} {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Satuan -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Satuan</label>
+              <div class="fw-bold">{{ barang.satuan }}</div>
+            </div>
+
+            <!-- Stok Awal -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Stok Awal</label>
+              <div class="fw-bold">{{ barang.stok_awal }}</div>
+            </div>
+
+            <!-- Tanggal Dibuat -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Dibuat Pada</label>
+              <div>
+                <i class="fas fa-clock text-muted"></i>
+                {{ barang.created_at.strftime('%d %B %Y, %H:%M') if
+                barang.created_at else '-' }}
+              </div>
+            </div>
+
+            <!-- Tanggal Update -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Terakhir Diupdate</label>
+              <div>
+                <i class="fas fa-clock text-muted"></i>
+                {{ barang.updated_at.strftime('%d %B %Y, %H:%M') if
+                barang.updated_at else '-' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stok Card -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm border-primary mb-3">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="fas fa-warehouse"></i> Stok Barang</h5>
+        </div>
+        <div class="card-body text-center">
+          <div class="mb-3">
+            <div class="text-muted small">Stok Akhir</div>
+            <div
+              class="display-4 fw-bold {% if stok_akhir < 10 %}text-danger {% elif stok_akhir < 50 %}text-warning {% else %}text-success{% endif %}"
+            >
+              {{ stok_akhir }}
+            </div>
+            <div class="text-muted">{{ barang.satuan }}</div>
+          </div>
+
+          <hr />
+
+          <div class="row text-center">
+            <div class="col-6">
+              <div class="text-muted small">Total Masuk</div>
+              <div class="fs-4 text-success fw-bold">
+                {{ barang.barang_masuk.count() }}
+              </div>
+              <small class="text-muted">transaksi</small>
+            </div>
+            <div class="col-6">
+              <div class="text-muted small">Total Keluar</div>
+              <div class="fs-4 text-danger fw-bold">
+                {{ barang.barang_keluar.count() }}
+              </div>
+              <small class="text-muted">transaksi</small>
+            </div>
+          </div>
+
+          <hr />
+
+          <div class="d-grid gap-2">
+            <a
+              href="{{ url_for('transaksi.masuk_tambah') }}?barang={{ barang.kode_barang }}"
+              class="btn btn-success btn-sm"
+            >
+              <i class="fas fa-plus-circle"></i> Barang Masuk
+            </a>
+            <a
+              href="{{ url_for('transaksi.keluar_tambah') }}?barang={{ barang.kode_barang }}"
+              class="btn btn-danger btn-sm"
+            >
+              <i class="fas fa-minus-circle"></i> Barang Keluar
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Alert -->
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        <strong>Perhitungan Stok:</strong>
+        <div class="small mt-2">
+          Stok Akhir = Stok Awal + Total Masuk - Total Keluar
+        </div>
+      </div>
+
+      <!-- Kontrak Card -->
+      <div class="card shadow-sm border-warning mb-3">
+        <div class="card-header bg-warning">
+          <h5 class="mb-0"><i class="fas fa-file-contract"></i> Kontrak/SPK</h5>
+        </div>
+        <div class="card-body">
+          {% if barang.barang_kontrak.count() > 0 %}
+          <div class="list-group list-group-flush">
+            {% for bk in barang.barang_kontrak.all() %}
+            <div class="list-group-item px-0">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 class="mb-1">
+                    <a href="{{ url_for('kontrak.detail', id=bk.kontrak.id) }}">
+                      {{ bk.kontrak.nomor_kontrak }}
+                    </a>
+                  </h6>
+                  <small class="text-muted">
+                    {{ bk.kontrak.tanggal_kontrak.strftime('%d/%m/%Y') }}
+                  </small>
+                </div>
+                <span class="badge bg-info"
+                  >{{ bk.qty_kontrak }} {{ barang.satuan }}</span
+                >
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="text-muted small mb-0">
+            <i class="fas fa-info-circle"></i> Barang ini belum terkait dengan
+            kontrak manapun
+          </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Riwayat Transaksi -->
+  <div class="row">
+    <!-- Transaksi Masuk -->
+    <div class="col-lg-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-arrow-down"></i> Riwayat Barang Masuk
+            <span class="badge bg-light text-success"
+              >{{ barang.barang_masuk.count() }}</span
+            >
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          {% if transaksi_masuk %}
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Tanggal</th>
+                  <th class="text-end">Qty</th>
+                  <th>Keterangan</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for transaksi in transaksi_masuk %}
+                <tr>
+                  <td>
+                    <small>{{ transaksi.tanggal.strftime('%d/%m/%Y') }}</small>
+                  </td>
+                  <td class="text-end">
+                    <span class="badge bg-success">+{{ transaksi.qty }}</span>
+                  </td>
+                  <td>
+                    <small>{{ transaksi.keterangan or '-' }}</small>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% if barang.barang_masuk.count() > 10 %}
+          <div class="card-footer text-center">
+            <a
+              href="{{ url_for('transaksi.masuk_index') }}?barang={{ barang.kode_barang }}"
+              class="btn btn-sm btn-link"
+            >
+              Lihat Semua Transaksi <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+          {% endif %} {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="fas fa-inbox fa-3x mb-3"></i>
+            <div>Belum ada transaksi masuk</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaksi Keluar -->
+    <div class="col-lg-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-danger text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-arrow-up"></i> Riwayat Barang Keluar
+            <span class="badge bg-light text-danger"
+              >{{ barang.barang_keluar.count() }}</span
+            >
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          {% if transaksi_keluar %}
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Tanggal</th>
+                  <th class="text-end">Qty</th>
+                  <th>Keterangan</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for transaksi in transaksi_keluar %}
+                <tr>
+                  <td>
+                    <small>{{ transaksi.tanggal.strftime('%d/%m/%Y') }}</small>
+                  </td>
+                  <td class="text-end">
+                    <span class="badge bg-danger">-{{ transaksi.qty }}</span>
+                  </td>
+                  <td>
+                    <small>{{ transaksi.keterangan or '-' }}</small>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% if barang.barang_keluar.count() > 10 %}
+          <div class="card-footer text-center">
+            <a
+              href="{{ url_for('transaksi.keluar_index') }}?barang={{ barang.kode_barang }}"
+              class="btn btn-sm btn-link"
+            >
+              Lihat Semua Transaksi <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+          {% endif %} {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="fas fa-inbox fa-3x mb-3"></i>
+            <div>Belum ada transaksi keluar</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,356 @@
+{% extends "base.html" %} {% block title %}{{ title }} - Inven-Go{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <!-- Breadcrumb -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2 class="mb-0">
+        <i class="fas fa-file-contract"></i> Detail Kontrak/SPK
+      </h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('kontrak.index') }}">Kontrak/SPK</a>
+          </li>
+          <li class="breadcrumb-item active">{{ kontrak.nomor_kontrak }}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %} {% for category, message in messages %}
+  <div
+    class="alert alert-{{ category }} alert-dismissible fade show"
+    role="alert"
+  >
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %} {% endif %} {% endwith %}
+
+  <!-- Info Kontrak -->
+  <div class="row mb-4">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div
+          class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+        >
+          <h5 class="mb-0">
+            <i class="fas fa-file-alt"></i> Informasi Kontrak
+          </h5>
+          <div>
+            <a
+              href="{{ url_for('kontrak.edit', id=kontrak.id) }}"
+              class="btn btn-sm btn-warning"
+            >
+              <i class="fas fa-edit"></i> Edit
+            </a>
+            <a
+              href="{{ url_for('kontrak.index') }}"
+              class="btn btn-sm btn-light"
+            >
+              <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Nomor Kontrak/SPK</label>
+              <div class="fw-bold fs-5">
+                <span class="badge bg-success"
+                  >{{ kontrak.nomor_kontrak }}</span
+                >
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Tanggal Kontrak</label>
+              <div class="fw-bold">
+                {{ kontrak.tanggal_kontrak.strftime('%d %B %Y') }}
+              </div>
+            </div>
+
+            <div class="col-12 mb-3">
+              <label class="text-muted small mb-1">Deskripsi</label>
+              <div class="border rounded p-3 bg-light">
+                {% if kontrak.deskripsi %} {{ kontrak.deskripsi }} {% else %}
+                <span class="text-muted fst-italic">Tidak ada deskripsi</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="text-muted small mb-1">Jumlah Item Barang</label>
+              <div class="fw-bold">
+                {{ kontrak.barang_kontrak.count() }} item
+              </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="text-muted small mb-1">Total Qty</label>
+              <div class="fw-bold">{{ kontrak.get_total_qty() }}</div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="text-muted small mb-1">Total Nilai Kontrak</label>
+              <div class="fw-bold text-success">
+                {% if kontrak.get_total_nilai() > 0 %} Rp {{
+                "{:,.0f}".format(kontrak.get_total_nilai()) }} {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Card -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm border-info">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Ringkasan</h5>
+        </div>
+        <div class="card-body text-center">
+          <div class="mb-3">
+            <div class="text-muted small">Total Item Barang</div>
+            <div class="display-6 fw-bold text-primary">
+              {{ kontrak.barang_kontrak.count() }}
+            </div>
+          </div>
+
+          <hr />
+
+          <div class="mb-3">
+            <div class="text-muted small">Total Quantity</div>
+            <div class="fs-3 fw-bold text-success">
+              {{ kontrak.get_total_qty() }}
+            </div>
+          </div>
+
+          <hr />
+
+          <div class="mb-3">
+            <div class="text-muted small">Total Nilai</div>
+            <div class="fs-5 fw-bold text-success">
+              {% if kontrak.get_total_nilai() > 0 %} Rp {{
+              "{:,.0f}".format(kontrak.get_total_nilai()) }} {% else %}
+              <span class="text-muted">-</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daftar Barang dalam Kontrak -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div
+          class="card-header bg-white d-flex justify-content-between align-items-center"
+        >
+          <h5 class="mb-0">
+            <i class="fas fa-boxes"></i> Daftar Barang dalam Kontrak
+          </h5>
+          <button
+            class="btn btn-sm btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#tambahBarangModal"
+          >
+            <i class="fas fa-plus"></i> Tambah Barang
+          </button>
+        </div>
+        <div class="card-body">
+          {% if kontrak.barang_kontrak.count() > 0 %}
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>No</th>
+                  <th>Kode Barang</th>
+                  <th>Nama Barang</th>
+                  <th>Kategori</th>
+                  <th>Merk</th>
+                  <th class="text-end">Qty</th>
+                  <th class="text-end">Harga Satuan</th>
+                  <th class="text-end">Total</th>
+                  <th class="text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for bk in kontrak.barang_kontrak.all() %}
+                <tr>
+                  <td>{{ loop.index }}</td>
+                  <td><code>{{ bk.barang.kode_barang }}</code></td>
+                  <td>
+                    <a href="{{ url_for('barang.detail', id=bk.barang.id) }}">
+                      {{ bk.barang.nama_barang }}
+                    </a>
+                  </td>
+                  <td>
+                    {% if bk.barang.kategori %}
+                    <span class="badge bg-info"
+                      >{{ bk.barang.kategori.nama_kategori }}</span
+                    >
+                    {% else %}
+                    <span class="text-muted">-</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if bk.barang.merk %}
+                    <span class="badge bg-secondary"
+                      >{{ bk.barang.merk.nama_merk }}</span
+                    >
+                    {% else %}
+                    <span class="text-muted">-</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">
+                    <strong>{{ bk.qty_kontrak }}</strong> {{ bk.barang.satuan }}
+                  </td>
+                  <td class="text-end">
+                    {% if bk.harga_satuan %} Rp {{
+                    "{:,.0f}".format(bk.harga_satuan) }} {% else %}
+                    <span class="text-muted">-</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end fw-bold text-success">
+                    {% if bk.harga_satuan %} Rp {{
+                    "{:,.0f}".format(bk.get_total_nilai()) }} {% else %}
+                    <span class="text-muted">-</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-center">
+                    <form
+                      method="POST"
+                      action="{{ url_for('kontrak.hapus_barang', kontrak_id=kontrak.id, barang_kontrak_id=bk.id) }}"
+                      style="display: inline"
+                      onsubmit="return confirm('Yakin ingin menghapus barang ini dari kontrak?');"
+                    >
+                      <button
+                        type="submit"
+                        class="btn btn-sm btn-danger"
+                        title="Hapus"
+                      >
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot class="table-light">
+                <tr>
+                  <th colspan="5" class="text-end">TOTAL:</th>
+                  <th class="text-end">{{ kontrak.get_total_qty() }}</th>
+                  <th></th>
+                  <th class="text-end text-success fw-bold">
+                    {% if kontrak.get_total_nilai() > 0 %} Rp {{
+                    "{:,.0f}".format(kontrak.get_total_nilai()) }} {% else %}
+                    <span class="text-muted">-</span>
+                    {% endif %}
+                  </th>
+                  <th></th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          {% else %}
+          <div class="text-center py-5 text-muted">
+            <i class="fas fa-inbox fa-4x mb-3"></i>
+            <h5>Belum Ada Barang dalam Kontrak</h5>
+            <p>
+              Klik tombol "Tambah Barang" untuk menambahkan barang ke kontrak
+              ini
+            </p>
+            <button
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#tambahBarangModal"
+            >
+              <i class="fas fa-plus"></i> Tambah Barang Pertama
+            </button>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Tambah Barang -->
+<div class="modal fade" id="tambahBarangModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form
+        method="POST"
+        action="{{ url_for('kontrak.tambah_barang', id=kontrak.id) }}"
+      >
+        {{ form.hidden_tag() }}
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">
+            <i class="fas fa-plus-circle"></i> Tambah Barang ke Kontrak
+          </h5>
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="modal"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <!-- Pilih Barang -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">
+              {{ form.barang_id.label }} <span class="text-danger">*</span>
+            </label>
+            {{ form.barang_id(class="form-select" + (" is-invalid" if
+            form.barang_id.errors else "")) }} {% if form.barang_id.errors %}
+            <div class="invalid-feedback">{{ form.barang_id.errors[0] }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Qty Kontrak -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">
+              {{ form.qty_kontrak.label }} <span class="text-danger">*</span>
+            </label>
+            {{ form.qty_kontrak(class="form-control" + (" is-invalid" if
+            form.qty_kontrak.errors else ""), type="number", min="1") }} {% if
+            form.qty_kontrak.errors %}
+            <div class="invalid-feedback">{{ form.qty_kontrak.errors[0] }}</div>
+            {% endif %}
+            <small class="text-muted">Jumlah barang dalam kontrak</small>
+          </div>
+
+          <!-- Harga Satuan -->
+          <div class="mb-3">
+            <label class="form-label fw-bold"
+              >{{ form.harga_satuan.label }}</label
+            >
+            {{ form.harga_satuan(class="form-control", type="number", min="0",
+            step="0.01", placeholder="Contoh: 15000000") }}
+            <small class="text-muted">Harga per unit (opsional)</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            <i class="fas fa-times"></i> Batal
+          </button>
+          {{ form.submit(class="btn btn-primary") }}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

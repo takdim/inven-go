@@ -1,0 +1,190 @@
+{% extends "base.html" %} {% block title %}{{ title }} - Inven-Go{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2 class="mb-0"><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+      <p class="text-muted">
+        Selamat datang, <strong>{{ current_user.nama_lengkap }}</strong>!
+      </p>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+      <div class="card bg-primary text-white shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="small">Total Barang</div>
+              <h2 class="mb-0">{{ total_barang }}</h2>
+            </div>
+            <div class="fs-1">
+              <i class="fas fa-boxes"></i>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-primary bg-opacity-75 text-white-50">
+          <small>Master data barang</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card bg-success text-white shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="small">Barang Masuk</div>
+              <h2 class="mb-0">{{ total_transaksi_masuk }}</h2>
+            </div>
+            <div class="fs-1">
+              <i class="fas fa-arrow-down"></i>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-success bg-opacity-75 text-white-50">
+          <small>Total transaksi masuk</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card bg-danger text-white shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="small">Barang Keluar</div>
+              <h2 class="mb-0">{{ total_transaksi_keluar }}</h2>
+            </div>
+            <div class="fs-1">
+              <i class="fas fa-arrow-up"></i>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-danger bg-opacity-75 text-white-50">
+          <small>Total transaksi keluar</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card bg-warning text-white shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="small">Total Users</div>
+              <h2 class="mb-0">{{ total_users }}</h2>
+            </div>
+            <div class="fs-1">
+              <i class="fas fa-users"></i>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-warning bg-opacity-75 text-white-50">
+          <small>Pengguna terdaftar</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Stok Rendah -->
+    <div class="col-lg-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-danger text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-exclamation-triangle"></i> Barang Stok Rendah
+          </h5>
+        </div>
+        <div class="card-body">
+          {% if barang_stok_rendah %}
+          <div class="table-responsive">
+            <table class="table table-sm table-hover">
+              <thead>
+                <tr>
+                  <th>Kode</th>
+                  <th>Nama Barang</th>
+                  <th>Stok</th>
+                  <th>Satuan</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in barang_stok_rendah[:10] %}
+                <tr>
+                  <td><code>{{ item.barang.kode_barang }}</code></td>
+                  <td>{{ item.barang.nama_barang }}</td>
+                  <td>
+                    <span class="badge bg-danger">{{ item.stok_akhir }}</span>
+                  </td>
+                  <td>{{ item.barang.satuan }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-muted text-center mb-0">
+            <i class="fas fa-check-circle text-success"></i> Semua barang stok
+            aman
+          </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaksi Terbaru -->
+    <div class="col-lg-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0"><i class="fas fa-history"></i> Transaksi Terbaru</h5>
+        </div>
+        <div class="card-body">
+          <h6 class="text-success">
+            <i class="fas fa-arrow-down"></i> Barang Masuk
+          </h6>
+          {% if transaksi_masuk_terbaru %}
+          <ul class="list-group list-group-flush mb-3">
+            {% for tr in transaksi_masuk_terbaru[:5] %}
+            <li class="list-group-item px-0 py-2">
+              <div class="d-flex justify-content-between">
+                <small><strong>{{ tr.barang.nama_barang }}</strong></small>
+                <small class="text-success">+{{ tr.qty }}</small>
+              </div>
+              <small class="text-muted"
+                >{{ tr.tanggal.strftime('%d %b %Y') }}</small
+              >
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="text-muted small">Belum ada transaksi</p>
+          {% endif %}
+
+          <h6 class="text-danger mt-3">
+            <i class="fas fa-arrow-up"></i> Barang Keluar
+          </h6>
+          {% if transaksi_keluar_terbaru %}
+          <ul class="list-group list-group-flush">
+            {% for tr in transaksi_keluar_terbaru[:5] %}
+            <li class="list-group-item px-0 py-2">
+              <div class="d-flex justify-content-between">
+                <small><strong>{{ tr.barang.nama_barang }}</strong></small>
+                <small class="text-danger">-{{ tr.qty }}</small>
+              </div>
+              <small class="text-muted"
+                >{{ tr.tanggal.strftime('%d %b %Y') }}</small
+              >
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="text-muted small">Belum ada transaksi</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

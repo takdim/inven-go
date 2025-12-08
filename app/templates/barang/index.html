@@ -1,0 +1,197 @@
+{% extends "base.html" %} {% block title %}{{ title }} - Inven-Go{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <h2><i class="fas fa-boxes"></i> {{ title }}</h2>
+    </div>
+    <div class="col-md-6 text-end">
+      <a href="{{ url_for('barang.tambah') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Tambah Barang
+      </a>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <form method="GET" action="{{ url_for('barang.index') }}">
+        <div class="input-group">
+          <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Cari kode atau nama barang..."
+            value="{{ search }}"
+          />
+          <button class="btn btn-outline-secondary" type="submit">
+            <i class="fas fa-search"></i> Cari
+          </button>
+          {% if search %}
+          <a
+            href="{{ url_for('barang.index') }}"
+            class="btn btn-outline-danger"
+          >
+            <i class="fas fa-times"></i> Reset
+          </a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="alert alert-{{ category }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+        ></button>
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>No</th>
+              <th>Kode Barang</th>
+              <th>Nama Barang</th>
+              <th>Kategori</th>
+              <th>Merk</th>
+              <th>Satuan</th>
+              <th>Stok Awal</th>
+              <th>Stok Akhir</th>
+              <th class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if barang_list %} {% for item in barang_list %}
+            <tr>
+              <td>
+                {{ loop.index + (pagination.page - 1) * pagination.per_page }}
+              </td>
+              <td><code>{{ item.barang.kode_barang }}</code></td>
+              <td>{{ item.barang.nama_barang }}</td>
+              <td>
+                {% if item.barang.kategori %}
+                <span class="badge bg-info"
+                  >{{ item.barang.kategori.nama_kategori }}</span
+                >
+                {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if item.barang.merk %}
+                <span class="badge bg-secondary"
+                  >{{ item.barang.merk.nama_merk }}</span
+                >
+                {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+              </td>
+              <td>{{ item.barang.satuan }}</td>
+              <td>{{ item.barang.stok_awal }}</td>
+              <td>
+                <span
+                  class="badge {% if item.stok_akhir < 10 %}bg-danger{% elif item.stok_akhir < 50 %}bg-warning{% else %}bg-success{% endif %}"
+                >
+                  {{ item.stok_akhir }}
+                </span>
+              </td>
+              <td class="text-center">
+                <a
+                  href="{{ url_for('barang.detail', id=item.barang.id) }}"
+                  class="btn btn-sm btn-info"
+                  title="Detail"
+                >
+                  <i class="fas fa-eye"></i>
+                </a>
+                <a
+                  href="{{ url_for('barang.edit', id=item.barang.id) }}"
+                  class="btn btn-sm btn-warning"
+                  title="Edit"
+                >
+                  <i class="fas fa-edit"></i>
+                </a>
+                <form
+                  method="POST"
+                  action="{{ url_for('barang.hapus', id=item.barang.id) }}"
+                  style="display: inline"
+                  onsubmit="return confirm('Yakin ingin menghapus barang ini?');"
+                >
+                  <button
+                    type="submit"
+                    class="btn btn-sm btn-danger"
+                    title="Hapus"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %} {% else %}
+            <tr>
+              <td colspan="7" class="text-center text-muted">
+                <i class="fas fa-inbox"></i> Belum ada data barang
+              </td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      {% if pagination.pages > 1 %}
+      <nav>
+        <ul class="pagination justify-content-center">
+          <li
+            class="page-item {% if not pagination.has_prev %}disabled{% endif %}"
+          >
+            <a
+              class="page-link"
+              href="{{ url_for('barang.index', page=pagination.prev_num, search=search) if pagination.has_prev else '#' }}"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          </li>
+          {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1,
+          left_current=1, right_current=2) %} {% if page_num %}
+          <li
+            class="page-item {% if page_num == pagination.page %}active{% endif %}"
+          >
+            <a
+              class="page-link"
+              href="{{ url_for('barang.index', page=page_num, search=search) }}"
+              >{{ page_num }}</a
+            >
+          </li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">...</span></li>
+          {% endif %} {% endfor %}
+          <li
+            class="page-item {% if not pagination.has_next %}disabled{% endif %}"
+          >
+            <a
+              class="page-link"
+              href="{{ url_for('barang.index', page=pagination.next_num, search=search) if pagination.has_next else '#' }}"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

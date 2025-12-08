@@ -1,0 +1,136 @@
+{% extends "base.html" %} {% block title %}{{ title }} - Inven-Go{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <h2><i class="fas fa-arrow-up text-danger"></i> {{ title }}</h2>
+    </div>
+    <div class="col-md-6 text-end">
+      <a href="{{ url_for('transaksi.keluar_tambah') }}" class="btn btn-danger">
+        <i class="fas fa-plus"></i> Tambah Transaksi
+      </a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="alert alert-{{ category }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+        ></button>
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>No</th>
+              <th>Tanggal</th>
+              <th>Kode Barang</th>
+              <th>Nama Barang</th>
+              <th>Jumlah</th>
+              <th>Keterangan</th>
+              <th class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if transaksi_list.items %} {% for tr in transaksi_list.items %}
+            <tr>
+              <td>
+                {{ loop.index + (transaksi_list.page - 1) *
+                transaksi_list.per_page }}
+              </td>
+              <td>{{ tr.tanggal.strftime('%d/%m/%Y') }}</td>
+              <td><code>{{ tr.kode_barang }}</code></td>
+              <td>{{ tr.barang.nama_barang }}</td>
+              <td><span class="badge bg-danger">-{{ tr.qty }}</span></td>
+              <td>{{ tr.keterangan or '-' }}</td>
+              <td class="text-center">
+                <a
+                  href="{{ url_for('transaksi.keluar_edit', id=tr.id) }}"
+                  class="btn btn-sm btn-warning"
+                  title="Edit"
+                >
+                  <i class="fas fa-edit"></i>
+                </a>
+                <form
+                  method="POST"
+                  action="{{ url_for('transaksi.keluar_hapus', id=tr.id) }}"
+                  style="display: inline"
+                  onsubmit="return confirm('Yakin ingin menghapus transaksi ini?');"
+                >
+                  <button
+                    type="submit"
+                    class="btn btn-sm btn-danger"
+                    title="Hapus"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %} {% else %}
+            <tr>
+              <td colspan="7" class="text-center text-muted">
+                <i class="fas fa-inbox"></i> Belum ada transaksi barang keluar
+              </td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      {% if transaksi_list.pages > 1 %}
+      <nav>
+        <ul class="pagination justify-content-center">
+          <li
+            class="page-item {% if not transaksi_list.has_prev %}disabled{% endif %}"
+          >
+            <a
+              class="page-link"
+              href="{{ url_for('transaksi.keluar', page=transaksi_list.prev_num) if transaksi_list.has_prev else '#' }}"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          </li>
+          {% for page_num in transaksi_list.iter_pages(left_edge=1,
+          right_edge=1, left_current=1, right_current=2) %} {% if page_num %}
+          <li
+            class="page-item {% if page_num == transaksi_list.page %}active{% endif %}"
+          >
+            <a
+              class="page-link"
+              href="{{ url_for('transaksi.keluar', page=page_num) }}"
+              >{{ page_num }}</a
+            >
+          </li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">...</span></li>
+          {% endif %} {% endfor %}
+          <li
+            class="page-item {% if not transaksi_list.has_next %}disabled{% endif %}"
+          >
+            <a
+              class="page-link"
+              href="{{ url_for('transaksi.keluar', page=transaksi_list.next_num) if transaksi_list.has_next else '#' }}"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

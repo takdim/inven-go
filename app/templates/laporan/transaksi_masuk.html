@@ -1,0 +1,122 @@
+{% extends "base.html" %} {% block content %}
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2><i class="fas fa-arrow-circle-down"></i> Laporan Barang Masuk</h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('laporan.index') }}">Laporan</a>
+          </li>
+          <li class="breadcrumb-item active">Barang Masuk</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Filter Form -->
+  <div class="card mb-4">
+    <div class="card-header"><i class="fas fa-filter"></i> Filter Laporan</div>
+    <div class="card-body">
+      <form
+        method="GET"
+        action="{{ url_for('laporan.laporan_transaksi_masuk') }}"
+      >
+        <div class="row">
+          <div class="col-md-3">
+            {{ form.tanggal_awal.label(class="form-label") }} {{
+            form.tanggal_awal(class="form-control") }}
+          </div>
+          <div class="col-md-3">
+            {{ form.tanggal_akhir.label(class="form-label") }} {{
+            form.tanggal_akhir(class="form-control") }}
+          </div>
+          <div class="col-md-3">
+            {{ form.kode_barang.label(class="form-label") }} {{
+            form.kode_barang(class="form-control", placeholder="Cari kode...")
+            }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">&nbsp;</label>
+            <div class="d-grid gap-2">
+              {{ form.submit(class="btn btn-primary") }}
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Export Buttons -->
+  <div class="row mb-3">
+    <div class="col-12">
+      <div class="btn-group" role="group">
+        <a
+          href="{{ url_for('laporan.export_transaksi_masuk_excel', **request.args) }}"
+          class="btn btn-success"
+        >
+          <i class="fas fa-file-excel"></i> Export Excel
+        </a>
+        <a
+          href="{{ url_for('laporan.export_transaksi_masuk_pdf', **request.args) }}"
+          class="btn btn-danger"
+        >
+          <i class="fas fa-file-pdf"></i> Export PDF
+        </a>
+      </div>
+      <span class="ms-3 text-muted"
+        >Total: <strong>{{ transaksi_list|length }}</strong> transaksi</span
+      >
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th>No</th>
+              <th>Tanggal</th>
+              <th>Kode Barang</th>
+              <th>Nama Barang</th>
+              <th>Qty</th>
+              <th>Satuan</th>
+              <th>Keterangan</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if transaksi_list %} {% set total_qty = 0 %} {% for transaksi in
+            transaksi_list %} {% set total_qty = total_qty + transaksi.qty %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ transaksi.tanggal.strftime('%d/%m/%Y') }}</td>
+              <td>{{ transaksi.kode_barang }}</td>
+              <td>
+                {{ transaksi.barang.nama_barang if transaksi.barang else '-' }}
+              </td>
+              <td>{{ transaksi.qty }}</td>
+              <td>
+                {{ transaksi.barang.satuan if transaksi.barang else '-' }}
+              </td>
+              <td>{{ transaksi.keterangan or '-' }}</td>
+            </tr>
+            {% endfor %}
+            <tr class="table-secondary fw-bold">
+              <td colspan="4" class="text-end">TOTAL:</td>
+              <td>{{ total_qty }}</td>
+              <td colspan="2"></td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="7" class="text-center">Tidak ada data</td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

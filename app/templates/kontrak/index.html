@@ -1,0 +1,195 @@
+{% extends "base.html" %} {% block title %}{{ title }} - Inven-Go{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <!-- Breadcrumb -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2 class="mb-0">
+        <i class="fas fa-file-contract"></i> Daftar Kontrak/SPK
+      </h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active">Kontrak/SPK</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Action Buttons & Search -->
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <a href="{{ url_for('kontrak.tambah') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Tambah Kontrak/SPK
+      </a>
+    </div>
+    <div class="col-md-6">
+      <form method="GET" class="d-flex">
+        <input
+          type="text"
+          name="search"
+          class="form-control me-2"
+          placeholder="Cari nomor kontrak..."
+          value="{{ search }}"
+        />
+        <button type="submit" class="btn btn-secondary">
+          <i class="fas fa-search"></i> Cari
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="alert alert-{{ category }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+        ></button>
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>No</th>
+              <th>Nomor Kontrak/SPK</th>
+              <th>Tanggal</th>
+              <th>Jumlah Barang</th>
+              <th>Total Qty</th>
+              <th>Total Nilai</th>
+              <th class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if kontrak_list.items %} {% for kontrak in kontrak_list.items %}
+            <tr>
+              <td>
+                {{ loop.index + (kontrak_list.page - 1) * kontrak_list.per_page
+                }}
+              </td>
+              <td>
+                <strong>{{ kontrak.nomor_kontrak }}</strong>
+                {% if kontrak.deskripsi %}
+                <br /><small class="text-muted"
+                  >{{ kontrak.deskripsi[:50] }}...</small
+                >
+                {% endif %}
+              </td>
+              <td>{{ kontrak.tanggal_kontrak.strftime('%d/%m/%Y') }}</td>
+              <td>
+                <span class="badge bg-info"
+                  >{{ kontrak.barang_kontrak.count() }} item</span
+                >
+              </td>
+              <td>{{ kontrak.get_total_qty() }}</td>
+              <td>
+                {% if kontrak.get_total_nilai() > 0 %} Rp {{
+                "{:,.0f}".format(kontrak.get_total_nilai()) }} {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+              </td>
+              <td class="text-center">
+                <a
+                  href="{{ url_for('kontrak.detail', id=kontrak.id) }}"
+                  class="btn btn-sm btn-info"
+                  title="Detail"
+                >
+                  <i class="fas fa-eye"></i>
+                </a>
+                <a
+                  href="{{ url_for('kontrak.edit', id=kontrak.id) }}"
+                  class="btn btn-sm btn-warning"
+                  title="Edit"
+                >
+                  <i class="fas fa-edit"></i>
+                </a>
+                <form
+                  method="POST"
+                  action="{{ url_for('kontrak.hapus', id=kontrak.id) }}"
+                  style="display: inline"
+                  onsubmit="return confirm('Yakin ingin menghapus kontrak ini beserta semua barang terkait?');"
+                >
+                  <button
+                    type="submit"
+                    class="btn btn-sm btn-danger"
+                    title="Hapus"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %} {% else %}
+            <tr>
+              <td colspan="7" class="text-center text-muted py-4">
+                <i class="fas fa-inbox fa-3x mb-3"></i>
+                <div>Belum ada data kontrak</div>
+                <a
+                  href="{{ url_for('kontrak.tambah') }}"
+                  class="btn btn-primary btn-sm mt-2"
+                >
+                  <i class="fas fa-plus"></i> Tambah Kontrak Pertama
+                </a>
+              </td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      {% if kontrak_list.pages > 1 %}
+      <nav aria-label="Page navigation" class="mt-3">
+        <ul class="pagination justify-content-center">
+          {% if kontrak_list.has_prev %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="{{ url_for('kontrak.index', page=kontrak_list.prev_num, search=search) }}"
+            >
+              <i class="fas fa-chevron-left"></i> Previous
+            </a>
+          </li>
+          {% endif %} {% for page_num in kontrak_list.iter_pages(left_edge=1,
+          right_edge=1, left_current=2, right_current=2) %} {% if page_num %}
+          <li
+            class="page-item {% if page_num == kontrak_list.page %}active{% endif %}"
+          >
+            <a
+              class="page-link"
+              href="{{ url_for('kontrak.index', page=page_num, search=search) }}"
+            >
+              {{ page_num }}
+            </a>
+          </li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">...</span></li>
+          {% endif %} {% endfor %} {% if kontrak_list.has_next %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="{{ url_for('kontrak.index', page=kontrak_list.next_num, search=search) }}"
+            >
+              Next <i class="fas fa-chevron-right"></i>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
