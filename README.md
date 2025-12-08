@@ -82,6 +82,7 @@ python reset_admin.py
 ```
 
 Default admin:
+
 - Username: `admin`
 - Password: `admin123`
 
@@ -122,6 +123,7 @@ inven-go/
 ## 📊 Database Schema
 
 ### Tabel Utama:
+
 - `users` - User authentication
 - `user_log` - User activity logs
 - `barang` - Master data barang
@@ -154,13 +156,16 @@ Edit `config/config.py` atau gunakan environment variables di `.env`
 ## 📝 API Endpoints
 
 ### Authentication
+
 - `GET/POST /login` - Login page
 - `GET /logout` - Logout
 
 ### Dashboard
+
 - `GET /dashboard` - Main dashboard
 
 ### Barang
+
 - `GET /barang` - List barang
 - `GET/POST /barang/tambah` - Add barang
 - `GET/POST /barang/edit/<id>` - Edit barang
@@ -168,6 +173,7 @@ Edit `config/config.py` atau gunakan environment variables di `.env`
 - `GET /barang/<id>` - Detail barang
 
 ### Kontrak
+
 - `GET /kontrak` - List kontrak
 - `GET/POST /kontrak/tambah` - Add kontrak
 - `GET/POST /kontrak/edit/<id>` - Edit kontrak
@@ -176,10 +182,12 @@ Edit `config/config.py` atau gunakan environment variables di `.env`
 - `POST /kontrak/<kontrak_id>/hapus-barang/<id>` - Remove item
 
 ### Transaksi
+
 - `GET/POST /transaksi/masuk` - Barang masuk
 - `GET/POST /transaksi/keluar` - Barang keluar
 
 ### Laporan
+
 - `GET /laporan` - Report dashboard
 - `GET /laporan/barang` - Laporan barang
 - `GET /laporan/barang/export-excel` - Export barang to Excel
