@@ -25,6 +25,19 @@ def index():
                 'stok_akhir': stok_akhir
             })
     
+    # Barang habis pakai dengan stok rendah (untuk alert khusus)
+    barang_habis_pakai_rendah = []
+    for barang in Barang.query.filter_by(jenis_barang='habis_pakai').all():
+        stok_akhir = barang.get_stok_akhir()
+        if barang.is_stok_rendah(stok_akhir):
+            prediksi = barang.prediksi_habis(30)
+            barang_habis_pakai_rendah.append({
+                'barang': barang,
+                'stok_akhir': stok_akhir,
+                'status': barang.get_status_stok(stok_akhir),
+                'prediksi': prediksi
+            })
+    
     # Transaksi terbaru
     transaksi_masuk_terbaru = BarangMasuk.query.order_by(BarangMasuk.created_at.desc()).limit(5).all()
     transaksi_keluar_terbaru = BarangKeluar.query.order_by(BarangKeluar.created_at.desc()).limit(5).all()
@@ -36,5 +49,6 @@ def index():
                          total_transaksi_keluar=total_transaksi_keluar,
                          total_users=total_users,
                          barang_stok_rendah=barang_stok_rendah,
+                         barang_habis_pakai_rendah=barang_habis_pakai_rendah,
                          transaksi_masuk_terbaru=transaksi_masuk_terbaru,
                          transaksi_keluar_terbaru=transaksi_keluar_terbaru)

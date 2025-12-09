@@ -35,6 +35,26 @@
               {% endif %}
             </div>
 
+            <!-- Jenis Barang -->
+            <div class="mb-3">
+              {{ form.jenis_barang.label(class="form-label fw-bold") }}
+              <div class="mt-2">
+                {% for subfield in form.jenis_barang %}
+                <div class="form-check mb-2">
+                  {{ subfield(class="form-check-input") }} {{
+                  subfield.label(class="form-check-label") }}
+                </div>
+                {% endfor %}
+              </div>
+              {% if form.jenis_barang.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.jenis_barang.errors %}
+                <div><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
             <div class="row">
               <div class="col-md-6 mb-3">
                 {{ form.kategori_id.label(class="form-label fw-bold") }} {{
@@ -80,9 +100,12 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                {{ form.satuan.label(class="form-label fw-bold") }} {{
-                form.satuan(class="form-control", placeholder="Contoh: Pcs, Kg,
-                Box") }} {% if form.satuan.errors %}
+                {{ form.satuan.label(class="form-label fw-bold") }}
+                <small class="text-muted d-block"
+                  >{{ form.satuan.description }}</small
+                >
+                {{ form.satuan(class="form-control", placeholder="Contoh: Pcs,
+                Unit, Box") }} {% if form.satuan.errors %}
                 <div class="text-danger small mt-1">
                   {% for error in form.satuan.errors %}
                   <div>
@@ -108,6 +131,51 @@
               </div>
             </div>
 
+            <!-- Field Khusus Barang Habis Pakai -->
+            <div id="habis-pakai-fields" style="display: none">
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> <strong>Info:</strong> Field
+                di bawah khusus untuk barang habis pakai
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  {{ form.satuan_kecil.label(class="form-label fw-bold") }}
+                  <small class="text-muted d-block"
+                    >{{ form.satuan_kecil.description }}</small
+                  >
+                  {{ form.satuan_kecil(class="form-control",
+                  placeholder="Contoh: Pack, Box, Rim") }} {% if
+                  form.satuan_kecil.errors %}
+                  <div class="text-danger small mt-1">
+                    {% for error in form.satuan_kecil.errors %}
+                    <div>
+                      <i class="fas fa-exclamation-circle"></i> {{ error }}
+                    </div>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  {{ form.stok_minimum.label(class="form-label fw-bold") }}
+                  <small class="text-muted d-block"
+                    >{{ form.stok_minimum.description }}</small
+                  >
+                  {{ form.stok_minimum(class="form-control", placeholder="0") }}
+                  {% if form.stok_minimum.errors %}
+                  <div class="text-danger small mt-1">
+                    {% for error in form.stok_minimum.errors %}
+                    <div>
+                      <i class="fas fa-exclamation-circle"></i> {{ error }}
+                    </div>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
             <hr />
 
             <div class="d-flex justify-content-between">
@@ -122,4 +190,41 @@
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const jenisBarangRadios = document.querySelectorAll(
+      'input[name="jenis_barang"]'
+    );
+    const habisPakaiFields = document.getElementById("habis-pakai-fields");
+
+    // Fungsi untuk toggle visibility
+    function toggleHabisPakaiFields() {
+      const selectedValue = document.querySelector(
+        'input[name="jenis_barang"]:checked'
+      )?.value;
+      if (selectedValue === "habis_pakai") {
+        habisPakaiFields.style.display = "block";
+      } else {
+        habisPakaiFields.style.display = "none";
+        // Reset nilai field habis pakai jika inventaris dipilih
+        const satuanKecilInput = document.getElementById("satuan_kecil");
+        const stokMinimumInput = document.getElementById("stok_minimum");
+        if (selectedValue === "inventaris") {
+          if (satuanKecilInput) satuanKecilInput.value = "";
+          if (stokMinimumInput) stokMinimumInput.value = "0";
+        }
+      }
+    }
+
+    // Event listener untuk setiap radio button
+    jenisBarangRadios.forEach((radio) => {
+      radio.addEventListener("change", toggleHabisPakaiFields);
+    });
+
+    // Panggil fungsi saat halaman load untuk handle edit form
+    toggleHabisPakaiFields();
+  });
+</script>
+
 {% endblock %}

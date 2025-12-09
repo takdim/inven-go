@@ -54,11 +54,14 @@ def tambah():
         barang = Barang(
             kode_barang=form.kode_barang.data,
             nama_barang=form.nama_barang.data,
+            jenis_barang=form.jenis_barang.data,
             kategori_id=form.kategori_id.data if form.kategori_id.data != 0 else None,
             merk_id=form.merk_id.data if form.merk_id.data != 0 else None,
             spesifikasi=form.spesifikasi.data,
             satuan=form.satuan.data,
-            stok_awal=form.stok_awal.data
+            satuan_kecil=form.satuan_kecil.data if form.satuan_kecil.data else None,
+            stok_awal=form.stok_awal.data,
+            stok_minimum=form.stok_minimum.data if form.stok_minimum.data else 0
         )
         
         db.session.add(barang)
@@ -94,11 +97,14 @@ def edit(id):
     if form.validate_on_submit():
         barang.kode_barang = form.kode_barang.data
         barang.nama_barang = form.nama_barang.data
+        barang.jenis_barang = form.jenis_barang.data
         barang.kategori_id = form.kategori_id.data if form.kategori_id.data != 0 else None
         barang.merk_id = form.merk_id.data if form.merk_id.data != 0 else None
         barang.spesifikasi = form.spesifikasi.data
         barang.satuan = form.satuan.data
+        barang.satuan_kecil = form.satuan_kecil.data if form.satuan_kecil.data else None
         barang.stok_awal = form.stok_awal.data
+        barang.stok_minimum = form.stok_minimum.data if form.stok_minimum.data else 0
         
         db.session.commit()
         
