@@ -64,10 +64,11 @@ class Barang(db.Model):
         total_keluar = db.session.query(db.func.sum(BarangKeluar.qty)).filter_by(kode_barang=self.kode_barang).scalar() or 0
         return self.stok_awal + total_masuk - total_keluar
     
-    def is_stok_rendah(self):
+    def is_stok_rendah(self, stok_akhir=None):
         """Cek apakah stok dibawah minimum (untuk barang habis pakai)"""
         if self.jenis_barang == 'habis_pakai' and self.stok_minimum > 0:
-            return self.get_stok_akhir() <= self.stok_minimum
+            stok = stok_akhir if stok_akhir is not None else self.get_stok_akhir()
+            return stok <= self.stok_minimum
         return False
     
     def get_status_stok(self, stok_akhir=None):
