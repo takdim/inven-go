@@ -1,0 +1,180 @@
+{% extends "base.html" %} {% block title %}{{ title }} - Inven-Go{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <h2><i class="fas fa-tag"></i> {{ title }}</h2>
+    </div>
+    <div class="col-md-6 text-end">
+      <a href="{{ url_for('merk.tambah') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Tambah Merk
+      </a>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <form method="GET" action="{{ url_for('merk.index') }}">
+        <div class="input-group">
+          <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Cari merk..."
+            value="{{ search }}"
+          />
+          <button class="btn btn-outline-secondary" type="submit">
+            <i class="fas fa-search"></i> Cari
+          </button>
+          {% if search %}
+          <a href="{{ url_for('merk.index') }}" class="btn btn-outline-danger">
+            <i class="fas fa-times"></i> Reset
+          </a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="alert alert-{{ category }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+        ></button>
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>No</th>
+              <th>Nama Merk</th>
+              <th>Deskripsi</th>
+              <th>Jumlah Barang</th>
+              <th>Dibuat</th>
+              <th class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if merk_list %} {% for merk in merk_list %}
+            <tr>
+              <td>
+                {{ loop.index + (pagination.page - 1) * pagination.per_page }}
+              </td>
+              <td><strong>{{ merk.nama_merk }}</strong></td>
+              <td>
+                {% if merk.deskripsi %} {{ merk.deskripsi[:50] }}{% if
+                merk.deskripsi|length > 50 %}...{% endif %} {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge bg-info"
+                  >{{ merk.barang.count() }} barang</span
+                >
+              </td>
+              <td>
+                <small class="text-muted">
+                  {{ merk.created_at.strftime('%d %b %Y') if merk.created_at
+                  else '-' }}
+                </small>
+              </td>
+              <td class="text-center">
+                <a
+                  href="{{ url_for('merk.edit', id=merk.id) }}"
+                  class="btn btn-sm btn-warning"
+                  title="Edit"
+                >
+                  <i class="fas fa-edit"></i>
+                </a>
+                <form
+                  method="POST"
+                  action="{{ url_for('merk.hapus', id=merk.id) }}"
+                  style="display: inline"
+                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus merk ini?')"
+                >
+                  <button
+                    type="submit"
+                    class="btn btn-sm btn-danger"
+                    title="Hapus"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %} {% else %}
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">
+                <i class="fas fa-inbox fa-3x mb-3"></i>
+                <p>Belum ada data merk</p>
+                <a href="{{ url_for('merk.tambah') }}" class="btn btn-primary">
+                  <i class="fas fa-plus"></i> Tambah Merk Pertama
+                </a>
+              </td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      {% if pagination.pages > 1 %}
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+          <li
+            class="page-item {% if not pagination.has_prev %}disabled{% endif %}"
+          >
+            <a
+              class="page-link"
+              href="{{ url_for('merk.index', page=pagination.prev_num, search=search) if pagination.has_prev else '#' }}"
+            >
+              <i class="fas fa-chevron-left"></i> Previous
+            </a>
+          </li>
+
+          {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1,
+          left_current=1, right_current=2) %} {% if page_num %}
+          <li
+            class="page-item {% if page_num == pagination.page %}active{% endif %}"
+          >
+            <a
+              class="page-link"
+              href="{{ url_for('merk.index', page=page_num, search=search) }}"
+            >
+              {{ page_num }}
+            </a>
+          </li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">...</span></li>
+          {% endif %} {% endfor %}
+
+          <li
+            class="page-item {% if not pagination.has_next %}disabled{% endif %}"
+          >
+            <a
+              class="page-link"
+              href="{{ url_for('merk.index', page=pagination.next_num, search=search) if pagination.has_next else '#' }}"
+            >
+              Next <i class="fas fa-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

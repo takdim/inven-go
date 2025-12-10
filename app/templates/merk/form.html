@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% block title %}{{ title }} - Inven-Go{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="fas fa-tag"></i> {{ title }}</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+              {{ form.nama_merk.label(class="form-label fw-bold") }} {{
+              form.nama_merk(class="form-control" + (" is-invalid" if
+              form.nama_merk.errors else "")) }} {% if form.nama_merk.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.nama_merk.errors %}
+                <div>{{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.deskripsi.label(class="form-label fw-bold") }} {{
+              form.deskripsi(class="form-control" + (" is-invalid" if
+              form.deskripsi.errors else "")) }} {% if form.deskripsi.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.deskripsi.errors %}
+                <div>{{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <a href="{{ url_for('merk.index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Kembali
+              </a>
+              {{ form.submit(class="btn btn-primary") }}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

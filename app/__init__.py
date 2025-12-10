@@ -29,6 +29,8 @@ def create_app(config_class=Config):
     from app.auth import bp as auth_bp
     from app.dashboard import bp as dashboard_bp
     from app.barang import bp as barang_bp
+    from app.kategori import bp as kategori_bp
+    from app.merk import bp as merk_bp
     from app.transaksi import bp as transaksi_bp
     from app.kontrak import bp as kontrak_bp
     from app.laporan import laporan_bp
@@ -37,6 +39,8 @@ def create_app(config_class=Config):
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(barang_bp)
+    app.register_blueprint(kategori_bp)
+    app.register_blueprint(merk_bp)
     app.register_blueprint(transaksi_bp)
     app.register_blueprint(kontrak_bp)
     app.register_blueprint(laporan_bp)

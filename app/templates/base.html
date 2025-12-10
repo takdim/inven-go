@@ -49,6 +49,30 @@
                 <i class="fas fa-boxes"></i> Data Barang
               </a>
             </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-database"></i> Master Data
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('kategori.index') }}"
+                    ><i class="fas fa-folder text-info"></i> Kategori Barang</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('merk.index') }}"
+                    ><i class="fas fa-tag text-warning"></i> Merk Barang</a
+                  >
+                </li>
+              </ul>
+            </li>
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('kontrak.index') }}">
                 <i class="fas fa-file-contract"></i> Kontrak/SPK
