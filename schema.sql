@@ -13,6 +13,25 @@ CREATE TABLE barang (
     INDEX idx_kode_barang (kode_barang)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Tabel Data Aset Tetap (Master Data)
+CREATE TABLE aset_tetap (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    kode_aset VARCHAR(50) UNIQUE NOT NULL,
+    nama_aset VARCHAR(255) NOT NULL,
+    satuan VARCHAR(50) NOT NULL,
+    satuan_kecil VARCHAR(50),
+    kategori_id INT,
+    merk_id INT,
+    spesifikasi TEXT,
+    stok_awal INT DEFAULT 0,
+    stok_minimum INT DEFAULT 0,
+    nomor_kontrak VARCHAR(100),
+    tanggal_kontrak DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_kode_aset (kode_aset)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Tabel Transaksi Barang Masuk
 CREATE TABLE barang_masuk (
     id INT AUTO_INCREMENT PRIMARY KEY,

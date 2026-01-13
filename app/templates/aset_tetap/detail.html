@@ -1,0 +1,240 @@
+{% extends "base.html" %} {% block title %}{{ title }} - Inven-Go{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <!-- Breadcrumb -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2 class="mb-0"><i class="fas fa-info-circle"></i> Detail Aset Tetap</h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('aset_tetap.index') }}">Aset Tetap</a>
+          </li>
+          <li class="breadcrumb-item active">{{ aset.nama_aset }}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Informasi Utama Aset -->
+  <div class="row mb-4">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div
+          class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+        >
+          <h5 class="mb-0"><i class="fas fa-building"></i> Informasi Aset Tetap</h5>
+          <div>
+            <a
+              href="{{ url_for('aset_tetap.edit', id=aset.id) }}"
+              class="btn btn-sm btn-warning"
+            >
+              <i class="fas fa-edit"></i> Edit
+            </a>
+            <a
+              href="{{ url_for('aset_tetap.index') }}"
+              class="btn btn-sm btn-light"
+            >
+              <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <!-- Kode Aset -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Kode Aset</label>
+              <div class="fw-bold">
+                <code class="fs-5">{{ aset.kode_aset }}</code>
+              </div>
+            </div>
+
+            <!-- Nama Aset -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Nama Aset</label>
+              <div class="fw-bold fs-5">{{ aset.nama_aset }}</div>
+            </div>
+
+            <!-- Kategori -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Kategori</label>
+              <div>
+                {% if aset.kategori %}
+                <span class="badge bg-info fs-6">
+                  <i class="fas fa-folder"></i> {{ aset.kategori.nama_kategori
+                  }}
+                </span>
+                {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Merk -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Merk</label>
+              <div>
+                {% if aset.merk %}
+                <span class="badge bg-secondary fs-6">
+                  <i class="fas fa-tag"></i> {{ aset.merk.nama_merk }}
+                </span>
+                {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Spesifikasi -->
+            <div class="col-12 mb-3">
+              <label class="text-muted small mb-1">Spesifikasi</label>
+              <div class="border rounded p-3 bg-light">
+                {% if aset.spesifikasi %}
+                <pre class="mb-0" style="white-space: pre-wrap">
+{{ aset.spesifikasi }}</pre
+                >
+                {% else %}
+                <span class="text-muted fst-italic">Tidak ada spesifikasi</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Nomor Kontrak/SPK -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">
+                <i class="fas fa-file-contract"></i> Nomor Kontrak/SPK
+              </label>
+              <div class="fw-bold">
+                {% if aset.nomor_kontrak %}
+                <span class="badge bg-success fs-6"
+                  >{{ aset.nomor_kontrak }}</span
+                >
+                {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Tanggal Kontrak/SPK -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">
+                <i class="fas fa-calendar-alt"></i> Tanggal Kontrak/SPK
+              </label>
+              <div class="fw-bold">
+                {% if aset.tanggal_kontrak %} {{
+                aset.tanggal_kontrak.strftime('%d %B %Y') }} {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Satuan -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Satuan</label>
+              <div class="fw-bold">{{ aset.satuan }}</div>
+            </div>
+
+            <!-- Satuan Kecil -->
+            {% if aset.satuan_kecil %}
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Satuan Kecil</label>
+              <div class="fw-bold">
+                <span class="badge bg-info fs-6">
+                  <i class="fas fa-box-open"></i> {{ aset.satuan_kecil }}
+                </span>
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Stok Awal -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Stok Awal</label>
+              <div class="fw-bold">{{ aset.stok_awal }}</div>
+            </div>
+
+            <!-- Stok Minimum -->
+            {% if aset.stok_minimum %}
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Stok Minimum (Alert)</label>
+              <div class="fw-bold">
+                <span class="badge bg-danger fs-6">
+                  <i class="fas fa-bell"></i> {{ aset.stok_minimum }}
+                </span>
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Tanggal Dibuat -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Dibuat Pada</label>
+              <div>
+                <i class="fas fa-clock text-muted"></i>
+                {{ aset.created_at.strftime('%d %B %Y, %H:%M') if
+                aset.created_at else '-' }}
+              </div>
+            </div>
+
+            <!-- Tanggal Update -->
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Terakhir Diupdate</label>
+              <div>
+                <i class="fas fa-clock text-muted"></i>
+                {{ aset.updated_at.strftime('%d %B %Y, %H:%M') if
+                aset.updated_at else '-' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card Ringkasan -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body text-center">
+          <div class="mb-2">
+            <i class="fas fa-cube fa-3x text-primary"></i>
+          </div>
+          <h6 class="text-muted mb-2">Stok Awal</h6>
+          <h2 class="mb-0">{{ aset.stok_awal }}</h2>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-3">
+        <div class="card-body text-center">
+          <div class="mb-2">
+            <i class="fas fa-cubes fa-3x text-success"></i>
+          </div>
+          <h6 class="text-muted mb-2">Stok Akhir</h6>
+          <h2 class="mb-0">{{ stok_akhir }}</h2>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted mb-3">
+            <i class="fas fa-info-circle"></i> Informasi
+          </h6>
+          <ul class="list-unstyled small">
+            <li class="mb-2">
+              <strong>Selisih Stok:</strong> {{ stok_akhir - aset.stok_awal }}
+            </li>
+            <li class="mb-2">
+              <strong>Status:</strong>
+              {% if stok_akhir <= 0 %}
+              <span class="badge bg-danger">Habis</span>
+              {% elif stok_akhir < 10 %}
+              <span class="badge bg-warning text-dark">Rendah</span>
+              {% else %}
+              <span class="badge bg-success">Aman</span>
+              {% endif %}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

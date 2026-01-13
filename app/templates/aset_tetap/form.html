@@ -1,0 +1,195 @@
+{% extends "base.html" %} {% block title %}{{ title }} - Inven-Go{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="fas fa-building"></i> {{ title }}</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+              {{ form.kode_aset.label(class="form-label fw-bold") }} {{
+              form.kode_aset(class="form-control", placeholder="Contoh: AST001") }} {% if form.kode_aset.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.kode_aset.errors %}
+                <div><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.nama_aset.label(class="form-label fw-bold") }} {{
+              form.nama_aset(class="form-control", placeholder="Nama aset")
+              }} {% if form.nama_aset.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.nama_aset.errors %}
+                <div><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                {{ form.kategori_id.label(class="form-label fw-bold") }} {{
+                form.kategori_id(class="form-select") }} {% if
+                form.kategori_id.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.kategori_id.errors %}
+                  <div>
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+
+              <div class="col-md-6 mb-3">
+                {{ form.merk_id.label(class="form-label fw-bold") }} {{
+                form.merk_id(class="form-select") }} {% if form.merk_id.errors
+                %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.merk_id.errors %}
+                  <div>
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              {{ form.spesifikasi.label(class="form-label fw-bold") }} {{
+              form.spesifikasi(class="form-control", rows="3",
+              placeholder="Contoh: Laptop Dell XPS 13, RAM 16GB, SSD 512GB") }} {% if
+              form.spesifikasi.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.spesifikasi.errors %}
+                <div><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                {{ form.satuan.label(class="form-label fw-bold") }}
+                <small class="text-muted d-block"
+                  >{{ form.satuan.description }}</small
+                >
+                {{ form.satuan(class="form-control", placeholder="Contoh: Pcs,
+                Unit, Box") }} {% if form.satuan.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.satuan.errors %}
+                  <div>
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+
+              <div class="col-md-6 mb-3">
+                {{ form.stok_awal.label(class="form-label fw-bold") }} {{
+                form.stok_awal(class="form-control", placeholder="0") }} {% if
+                form.stok_awal.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.stok_awal.errors %}
+                  <div>
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                {{ form.satuan_kecil.label(class="form-label fw-bold") }}
+                <small class="text-muted d-block"
+                  >{{ form.satuan_kecil.description }}</small
+                >
+                {{ form.satuan_kecil(class="form-control",
+                placeholder="Contoh: Pack, Box, Rim") }} {% if
+                form.satuan_kecil.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.satuan_kecil.errors %}
+                  <div>
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+
+              <div class="col-md-6 mb-3">
+                {{ form.stok_minimum.label(class="form-label fw-bold") }}
+                <small class="text-muted d-block"
+                  >{{ form.stok_minimum.description }}</small
+                >
+                {{ form.stok_minimum(class="form-control", placeholder="0") }}
+                {% if form.stok_minimum.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.stok_minimum.errors %}
+                  <div>
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Kontrak/SPK -->
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                {{ form.nomor_kontrak.label(class="form-label fw-bold") }} {{
+                form.nomor_kontrak(class="form-control", placeholder="Contoh: SPK/2024/001") }} {% if
+                form.nomor_kontrak.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.nomor_kontrak.errors %}
+                  <div>
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+
+              <div class="col-md-6 mb-3">
+                {{ form.tanggal_kontrak.label(class="form-label fw-bold") }} {{
+                form.tanggal_kontrak(class="form-control", type="date") }} {% if
+                form.tanggal_kontrak.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.tanggal_kontrak.errors %}
+                  <div>
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <hr />
+
+            <div class="d-flex justify-content-between">
+              <a href="{{ url_for('aset_tetap.index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Kembali
+              </a>
+              {{ form.submit(class="btn btn-primary") }}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

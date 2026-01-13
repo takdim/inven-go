@@ -1,5 +1,9 @@
 import os
 from urllib.parse import quote_plus
+from dotenv import load_dotenv
+
+# Load .env file
+load_dotenv()
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
@@ -9,7 +13,7 @@ class Config:
     MYSQL_USER = os.environ.get('MYSQL_USER') or 'root'
     MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD') or 'your_password_here'
     MYSQL_HOST = os.environ.get('MYSQL_HOST') or 'localhost'
-    MYSQL_PORT = os.environ.get('MYSQL_PORT') or '3306'
+    MYSQL_PORT = os.environ.get('MYSQL_PORT') or '3307'
     MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE') or 'inventaris_gudang'
     
     # URL encode password untuk menghindari karakter special

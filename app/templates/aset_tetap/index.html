@@ -3,11 +3,11 @@
 <div class="container-fluid">
   <div class="row mb-4">
     <div class="col-md-6">
-      <h2><i class="fas fa-boxes"></i> {{ title }}</h2>
+      <h2><i class="fas fa-building"></i> {{ title }}</h2>
     </div>
     <div class="col-md-6 text-end">
-      <a href="{{ url_for('barang.tambah') }}" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Tambah Barang
+      <a href="{{ url_for('aset_tetap.tambah') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Tambah Aset Tetap
       </a>
     </div>
   </div>
@@ -15,13 +15,13 @@
   <!-- Search -->
   <div class="row mb-3">
     <div class="col-md-6">
-      <form method="GET" action="{{ url_for('barang.index') }}">
+      <form method="GET" action="{{ url_for('aset_tetap.index') }}">
         <div class="input-group">
           <input
             type="text"
             name="search"
             class="form-control"
-            placeholder="Cari kode atau nama barang..."
+            placeholder="Cari kode atau nama aset..."
             value="{{ search }}"
           />
           <button class="btn btn-outline-secondary" type="submit">
@@ -29,7 +29,7 @@
           </button>
           {% if search %}
           <a
-            href="{{ url_for('barang.index') }}"
+            href="{{ url_for('aset_tetap.index') }}"
             class="btn btn-outline-danger"
           >
             <i class="fas fa-times"></i> Reset
@@ -63,11 +63,11 @@
           <thead class="table-light">
             <tr>
               <th>No</th>
-              <th>Kode Barang</th>
-              <th>Nama Barang</th>
-              <th>Jenis</th>
+              <th>Kode Aset</th>
+              <th>Nama Aset</th>
               <th>Kategori</th>
               <th>Merk</th>
+              <th>Kontrak/SPK</th>
               <th>Satuan</th>
               <th>Stok Awal</th>
               <th>Stok Akhir</th>
@@ -75,44 +75,42 @@
             </tr>
           </thead>
           <tbody>
-            {% if barang_list %} {% for item in barang_list %}
+            {% if aset_list %} {% for item in aset_list %}
             <tr>
               <td>
                 {{ loop.index + (pagination.page - 1) * pagination.per_page }}
               </td>
-              <td><code>{{ item.barang.kode_barang }}</code></td>
-              <td>{{ item.barang.nama_barang }}</td>
+              <td><code>{{ item.aset.kode_aset }}</code></td>
+              <td>{{ item.aset.nama_aset }}</td>
               <td>
-                {% if item.barang.jenis_barang == 'habis_pakai' %}
-                <span class="badge bg-warning text-dark">
-                  <i class="fas fa-shopping-cart"></i> Habis Pakai
-                </span>
-                {% else %}
-                <span class="badge bg-primary">
-                  <i class="fas fa-archive"></i> Inventaris
-                </span>
-                {% endif %}
-              </td>
-              <td>
-                {% if item.barang.kategori %}
+                {% if item.aset.kategori %}
                 <span class="badge bg-info"
-                  >{{ item.barang.kategori.nama_kategori }}</span
+                  >{{ item.aset.kategori.nama_kategori }}</span
                 >
                 {% else %}
                 <span class="text-muted">-</span>
                 {% endif %}
               </td>
               <td>
-                {% if item.barang.merk %}
+                {% if item.aset.merk %}
                 <span class="badge bg-secondary"
-                  >{{ item.barang.merk.nama_merk }}</span
+                  >{{ item.aset.merk.nama_merk }}</span
                 >
                 {% else %}
                 <span class="text-muted">-</span>
                 {% endif %}
               </td>
-              <td>{{ item.barang.satuan }}</td>
-              <td>{{ item.barang.stok_awal }}</td>
+              <td>
+                {% if item.aset.nomor_kontrak %}
+                <span class="badge bg-success"
+                  >{{ item.aset.nomor_kontrak }}</span
+                >
+                {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+              </td>
+              <td>{{ item.aset.satuan }}</td>
+              <td>{{ item.aset.stok_awal }}</td>
               <td>
                 <span
                   class="badge {% if item.stok_akhir < 10 %}bg-danger{% elif item.stok_akhir < 50 %}bg-warning{% else %}bg-success{% endif %}"
@@ -122,14 +120,14 @@
               </td>
               <td class="text-center">
                 <a
-                  href="{{ url_for('barang.detail', id=item.barang.id) }}"
+                  href="{{ url_for('aset_tetap.detail', id=item.aset.id) }}"
                   class="btn btn-sm btn-info"
                   title="Detail"
                 >
                   <i class="fas fa-eye"></i>
                 </a>
                 <a
-                  href="{{ url_for('barang.edit', id=item.barang.id) }}"
+                  href="{{ url_for('aset_tetap.edit', id=item.aset.id) }}"
                   class="btn btn-sm btn-warning"
                   title="Edit"
                 >
@@ -137,9 +135,9 @@
                 </a>
                 <form
                   method="POST"
-                  action="{{ url_for('barang.hapus', id=item.barang.id) }}"
+                  action="{{ url_for('aset_tetap.hapus', id=item.aset.id) }}"
                   style="display: inline"
-                  onsubmit="return confirm('Yakin ingin menghapus barang ini?');"
+                  onsubmit="return confirm('Yakin ingin menghapus aset tetap ini?');"
                 >
                   <button
                     type="submit"
@@ -153,8 +151,8 @@
             </tr>
             {% endfor %} {% else %}
             <tr>
-              <td colspan="7" class="text-center text-muted">
-                <i class="fas fa-inbox"></i> Belum ada data barang
+              <td colspan="10" class="text-center text-muted">
+                <i class="fas fa-inbox"></i> Belum ada data aset tetap
               </td>
             </tr>
             {% endif %}
@@ -171,7 +169,7 @@
           >
             <a
               class="page-link"
-              href="{{ url_for('barang.index', page=pagination.prev_num, search=search) if pagination.has_prev else '#' }}"
+              href="{{ url_for('aset_tetap.index', page=pagination.prev_num, search=search) if pagination.has_prev else '#' }}"
             >
               <i class="fas fa-chevron-left"></i>
             </a>
@@ -183,7 +181,7 @@
           >
             <a
               class="page-link"
-              href="{{ url_for('barang.index', page=page_num, search=search) }}"
+              href="{{ url_for('aset_tetap.index', page=page_num, search=search) }}"
               >{{ page_num }}</a
             >
           </li>
@@ -195,7 +193,7 @@
           >
             <a
               class="page-link"
-              href="{{ url_for('barang.index', page=pagination.next_num, search=search) if pagination.has_next else '#' }}"
+              href="{{ url_for('aset_tetap.index', page=pagination.next_num, search=search) if pagination.has_next else '#' }}"
             >
               <i class="fas fa-chevron-right"></i>
             </a>
