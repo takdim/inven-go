@@ -59,8 +59,8 @@ def tambah():
             spesifikasi=form.spesifikasi.data,
             satuan=form.satuan.data,
             satuan_kecil=form.satuan_kecil.data if form.satuan_kecil.data else None,
-            stok_awal=form.stok_awal.data,
-            stok_minimum=form.stok_minimum.data if form.stok_minimum.data else 0,
+            stok_awal=0,
+            stok_minimum=0,
             nomor_kontrak=form.nomor_kontrak.data if form.nomor_kontrak.data else None,
             tanggal_kontrak=form.tanggal_kontrak.data if form.tanggal_kontrak.data else None
         )
@@ -103,8 +103,6 @@ def edit(id):
         aset.spesifikasi = form.spesifikasi.data
         aset.satuan = form.satuan.data
         aset.satuan_kecil = form.satuan_kecil.data if form.satuan_kecil.data else None
-        aset.stok_awal = form.stok_awal.data
-        aset.stok_minimum = form.stok_minimum.data if form.stok_minimum.data else 0
         aset.nomor_kontrak = form.nomor_kontrak.data if form.nomor_kontrak.data else None
         aset.tanggal_kontrak = form.tanggal_kontrak.data if form.tanggal_kontrak.data else None
         

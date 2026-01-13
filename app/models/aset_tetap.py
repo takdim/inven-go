@@ -28,17 +28,7 @@ class AsetTetap(db.Model):
     
     def get_stok_akhir(self):
         """Hitung stok akhir dari transaksi masuk dan keluar"""
-        from app.models.barang import BarangMasuk, BarangKeluar
-        
-        total_masuk = db.session.query(db.func.sum(BarangMasuk.qty_masuk)).filter(
-            BarangMasuk.aset_tetap_id == self.id
-        ).scalar() or 0
-        
-        total_keluar = db.session.query(db.func.sum(BarangKeluar.qty_keluar)).filter(
-            BarangKeluar.aset_tetap_id == self.id
-        ).scalar() or 0
-        
-        return self.stok_awal + total_masuk - total_keluar
+        return self.stok_awal
     
     def to_dict(self):
         return {

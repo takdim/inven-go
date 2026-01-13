@@ -16,22 +16,14 @@ class AsetTetapForm(FlaskForm):
     kategori_id = SelectField('Kategori', coerce=int, validators=[Optional()])
     merk_id = SelectField('Merk', coerce=int, validators=[Optional()])
     spesifikasi = TextAreaField('Spesifikasi', validators=[Optional()])
-    satuan = StringField('Satuan', validators=[
-        DataRequired(message='Satuan wajib diisi'),
-        Length(min=1, max=50, message='Satuan 1-50 karakter')
+    satuan = StringField('Jumlah Aset', validators=[
+        DataRequired(message='Jumlah aset wajib diisi'),
+        Length(min=1, max=50, message='Jumlah aset 1-50 karakter')
     ])
     satuan_kecil = StringField('Satuan Kecil (Opsional)', validators=[
         Length(max=50, message='Satuan kecil maksimal 50 karakter'),
         Optional()
     ])
-    stok_awal = IntegerField('Stok Awal', validators=[
-        DataRequired(message='Stok awal wajib diisi'),
-        NumberRange(min=0, message='Stok awal harus 0 atau lebih')
-    ], default=0)
-    stok_minimum = IntegerField('Stok Minimum', validators=[
-        Optional(),
-        NumberRange(min=0, message='Stok minimum harus 0 atau lebih')
-    ], default=0)
     nomor_kontrak = StringField('Nomor Kontrak/SPK', validators=[
         Optional(),
         Length(max=100, message='Nomor kontrak maksimal 100 karakter')

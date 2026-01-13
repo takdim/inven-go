@@ -36,6 +36,11 @@ class MerkBarang(db.Model):
     
     # Relationship
     barang = db.relationship('Barang', backref='merk', lazy='dynamic')
+    aset_tetap = db.relationship('AsetTetap', foreign_keys='AsetTetap.merk_id', lazy='dynamic')
+    
+    def get_total_item(self):
+        """Hitung total barang + aset tetap"""
+        return self.barang.count() + self.aset_tetap.count()
     
     def __repr__(self):
         return f'<MerkBarang {self.nama_merk}>'

@@ -68,9 +68,7 @@
               <th>Kategori</th>
               <th>Merk</th>
               <th>Kontrak/SPK</th>
-              <th>Satuan</th>
-              <th>Stok Awal</th>
-              <th>Stok Akhir</th>
+              <th>Jumlah Aset</th>
               <th class="text-center">Aksi</th>
             </tr>
           </thead>
@@ -109,14 +107,8 @@
                 <span class="text-muted">-</span>
                 {% endif %}
               </td>
-              <td>{{ item.aset.satuan }}</td>
-              <td>{{ item.aset.stok_awal }}</td>
               <td>
-                <span
-                  class="badge {% if item.stok_akhir < 10 %}bg-danger{% elif item.stok_akhir < 50 %}bg-warning{% else %}bg-success{% endif %}"
-                >
-                  {{ item.stok_akhir }}
-                </span>
+                <span class="badge bg-primary">{{ item.aset.satuan }}</span>
               </td>
               <td class="text-center">
                 <a
@@ -151,7 +143,7 @@
             </tr>
             {% endfor %} {% else %}
             <tr>
-              <td colspan="10" class="text-center text-muted">
+              <td colspan="8" class="text-center text-muted">
                 <i class="fas fa-inbox"></i> Belum ada data aset tetap
               </td>
             </tr>
