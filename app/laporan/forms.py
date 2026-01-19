@@ -40,3 +40,10 @@ class LaporanKontrakForm(FlaskForm):
         ('10', 'Oktober'), ('11', 'November'), ('12', 'Desember')
     ], validators=[Optional()])
     submit = SubmitField('Tampilkan')
+
+
+class LaporanAsetTetapForm(FlaskForm):
+    """Form filter laporan aset tetap"""
+    kategori_id = SelectField('Kategori', coerce=int, validators=[Optional()])
+    merk_aset_tetap_id = SelectField('Merk', coerce=int, validators=[Optional()])
+    submit = SubmitField('Tampilkan')

@@ -71,6 +71,7 @@
               <th>Satuan</th>
               <th>Stok Awal</th>
               <th>Stok Akhir</th>
+              <th>Status</th>
               <th class="text-center">Aksi</th>
             </tr>
           </thead>
@@ -119,6 +120,30 @@
                 >
                   {{ item.stok_akhir }}
                 </span>
+              </td>
+              <td>
+                {% set status = item.barang.get_status_stok(item.stok_akhir) %}
+                {% if status == 'habis' %}
+                <span class="badge bg-danger">
+                  <i class="fas fa-times-circle"></i> Habis
+                </span>
+                {% elif status == 'rendah' %}
+                <span class="badge bg-danger">
+                  <i class="fas fa-exclamation-triangle"></i> Stok Rendah
+                </span>
+                {% elif status == 'perlu_order' %}
+                <span class="badge bg-warning text-dark">
+                  <i class="fas fa-bell"></i> Perlu Order
+                </span>
+                {% elif status == 'aman' %}
+                <span class="badge bg-success">
+                  <i class="fas fa-check-circle"></i> Aman
+                </span>
+                {% else %}
+                <span class="badge bg-secondary">
+                  <i class="fas fa-cube"></i> Normal
+                </span>
+                {% endif %}
               </td>
               <td class="text-center">
                 <a

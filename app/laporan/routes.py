@@ -3,6 +3,8 @@ from flask_login import login_required
 from app.laporan import laporan_bp
 from app.laporan.forms import LaporanBarangForm, LaporanTransaksiForm, LaporanKontrakForm
 from app.models import Barang, BarangMasuk, BarangKeluar, KontrakBarang, KategoriBarang, MerkBarang
+from app.models.aset_tetap import AsetTetap
+from app.models.merk_aset_tetap import MerkAsetTetap
 from app.utils.excel_export import export_barang_to_excel, export_kontrak_to_excel, export_transaksi_to_excel
 from app.utils.pdf_export import export_barang_to_pdf, export_kontrak_to_pdf, export_transaksi_to_pdf
 from datetime import datetime
@@ -470,6 +472,209 @@ def export_transaksi_keluar_pdf():
     
     # Generate filename
     filename = f'Laporan_Barang_Keluar_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'
+    
+    return send_file(buffer, 
+                    mimetype='application/pdf',
+                    as_attachment=True,
+                    download_name=filename)
+
+
+@laporan_bp.route('/aset-tetap')
+@login_required
+def laporan_aset_tetap():
+    """Laporan daftar aset tetap"""
+    from app.laporan.forms import LaporanAsetTetapForm
+    form = LaporanAsetTetapForm()
+    
+    # Populate choices
+    form.kategori_id.choices = [(0, 'Semua')] + [(k.id, k.nama_kategori) for k in KategoriBarang.query.all()]
+    form.merk_aset_tetap_id.choices = [(0, 'Semua')] + [(m.id, m.nama_merk) for m in MerkAsetTetap.query.all()]
+    
+    # Query aset tetap
+    query = AsetTetap.query
+    
+    # Apply filters
+    if request.args.get('kategori_id') and int(request.args.get('kategori_id')) > 0:
+        query = query.filter_by(kategori_id=int(request.args.get('kategori_id')))
+        form.kategori_id.data = int(request.args.get('kategori_id'))
+    
+    if request.args.get('merk_aset_tetap_id') and int(request.args.get('merk_aset_tetap_id')) > 0:
+        query = query.filter_by(merk_aset_tetap_id=int(request.args.get('merk_aset_tetap_id')))
+        form.merk_aset_tetap_id.data = int(request.args.get('merk_aset_tetap_id'))
+    
+    aset_list = query.order_by(AsetTetap.kode_aset).all()
+    
+    return render_template('laporan/aset_tetap.html', 
+                          title='Laporan Aset Tetap',
+                          form=form,
+                          aset_list=aset_list)
+
+
+@laporan_bp.route('/aset-tetap/export-excel')
+@login_required
+def export_aset_tetap_excel():
+    """Export laporan aset tetap ke Excel"""
+    # Get filters from request
+    query = AsetTetap.query
+    
+    if request.args.get('kategori_id') and int(request.args.get('kategori_id')) > 0:
+        query = query.filter_by(kategori_id=int(request.args.get('kategori_id')))
+    
+    if request.args.get('merk_aset_tetap_id') and int(request.args.get('merk_aset_tetap_id')) > 0:
+        query = query.filter_by(merk_aset_tetap_id=int(request.args.get('merk_aset_tetap_id')))
+    
+    aset_list = query.order_by(AsetTetap.kode_aset).all()
+    
+    # Generate Excel using openpyxl
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from io import BytesIO
+    
+    wb = Workbook()
+    ws = wb.active
+    ws.title = 'Aset Tetap'
+    
+    # Set column widths
+    ws.column_dimensions['A'].width = 5
+    ws.column_dimensions['B'].width = 15
+    ws.column_dimensions['C'].width = 25
+    ws.column_dimensions['D'].width = 15
+    ws.column_dimensions['E'].width = 15
+    ws.column_dimensions['F'].width = 20
+    ws.column_dimensions['G'].width = 25
+    ws.column_dimensions['H'].width = 20
+    
+    # Add header
+    headers = ['No', 'Kode Aset', 'Nama Aset', 'Kategori', 'Merk', 'Kontrak/SPK', 'Tempat Penggunaan', 'Nama Pengguna']
+    header_fill = PatternFill(start_color='366092', end_color='366092', fill_type='solid')
+    header_font = Font(bold=True, color='FFFFFF')
+    border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+    
+    for col, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col)
+        cell.value = header
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        cell.border = border
+    
+    # Add data
+    for row, aset in enumerate(aset_list, 2):
+        ws.cell(row=row, column=1).value = row - 1
+        ws.cell(row=row, column=2).value = aset.kode_aset
+        ws.cell(row=row, column=3).value = aset.nama_aset
+        ws.cell(row=row, column=4).value = aset.kategori.nama_kategori if aset.kategori else '-'
+        ws.cell(row=row, column=5).value = aset.merk_aset_tetap.nama_merk if aset.merk_aset_tetap else '-'
+        ws.cell(row=row, column=6).value = aset.kontrak_spk or '-'
+        ws.cell(row=row, column=7).value = aset.tempat_penggunaan or '-'
+        ws.cell(row=row, column=8).value = aset.nama_pengguna or '-'
+        
+        # Apply borders and alignment
+        for col in range(1, 9):
+            cell = ws.cell(row=row, column=col)
+            cell.border = border
+            cell.alignment = Alignment(horizontal='left', vertical='center', wrap_text=True)
+    
+    # Save to BytesIO
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+    
+    # Generate filename
+    filename = f'Laporan_Aset_Tetap_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    
+    return send_file(buffer, 
+                    mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    as_attachment=True,
+                    download_name=filename)
+
+
+@laporan_bp.route('/aset-tetap/export-pdf')
+@login_required
+def export_aset_tetap_pdf():
+    """Export laporan aset tetap ke PDF"""
+    # Get filters from request
+    query = AsetTetap.query
+    
+    if request.args.get('kategori_id') and int(request.args.get('kategori_id')) > 0:
+        query = query.filter_by(kategori_id=int(request.args.get('kategori_id')))
+    
+    if request.args.get('merk_aset_tetap_id') and int(request.args.get('merk_aset_tetap_id')) > 0:
+        query = query.filter_by(merk_aset_tetap_id=int(request.args.get('merk_aset_tetap_id')))
+    
+    aset_list = query.order_by(AsetTetap.kode_aset).all()
+    
+    # Generate PDF using reportlab
+    from reportlab.lib.pagesizes import landscape, letter
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib import colors
+    from reportlab.lib.units import inch
+    from io import BytesIO
+    
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter), topMargin=0.5*inch, bottomMargin=0.5*inch)
+    
+    elements = []
+    
+    # Title
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=14,
+        textColor=colors.HexColor('#366092'),
+        spaceAfter=12,
+        alignment=1  # Center
+    )
+    elements.append(Paragraph('Laporan Daftar Aset Tetap', title_style))
+    elements.append(Spacer(1, 0.3*inch))
+    
+    # Prepare table data
+    table_data = [['No', 'Kode Aset', 'Nama Aset', 'Kategori', 'Merk', 'Kontrak/SPK', 'Tempat Penggunaan', 'Nama Pengguna']]
+    
+    for idx, aset in enumerate(aset_list, 1):
+        table_data.append([
+            str(idx),
+            aset.kode_aset,
+            aset.nama_aset,
+            aset.kategori.nama_kategori if aset.kategori else '-',
+            aset.merk_aset_tetap.nama_merk if aset.merk_aset_tetap else '-',
+            aset.kontrak_spk or '-',
+            aset.tempat_penggunaan or '-',
+            aset.nama_pengguna or '-'
+        ])
+    
+    # Create table
+    table = Table(table_data, colWidths=[0.4*inch, 1.0*inch, 1.5*inch, 1.0*inch, 1.0*inch, 1.2*inch, 1.5*inch, 1.2*inch])
+    
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#366092')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+        ('FONTSIZE', (0, 1), (-1, -1), 8),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0f0f0')]),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('WRAP', (0, 0), (-1, -1), True),
+    ]))
+    
+    elements.append(table)
+    
+    doc.build(elements)
+    buffer.seek(0)
+    
+    # Generate filename
+    filename = f'Laporan_Aset_Tetap_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'
     
     return send_file(buffer, 
                     mimetype='application/pdf',

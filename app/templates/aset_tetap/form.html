@@ -50,42 +50,10 @@
               </div>
 
               <div class="col-md-6 mb-3">
-                {{ form.merk_id.label(class="form-label fw-bold") }} {{
-                form.merk_id(class="form-select") }} {% if form.merk_id.errors
-                %}
+                {{ form.merk_aset_tetap_id.label(class="form-label fw-bold") }} {{
+                form.merk_aset_tetap_id(class="form-select") }} {% if form.merk_aset_tetap_id.errors %}
                 <div class="text-danger small mt-1">
-                  {% for error in form.merk_id.errors %}
-                  <div>
-                    <i class="fas fa-exclamation-circle"></i> {{ error }}
-                  </div>
-                  {% endfor %}
-                </div>
-                {% endif %}
-              </div>
-            </div>
-
-            <div class="mb-3">
-              {{ form.spesifikasi.label(class="form-label fw-bold") }} {{
-              form.spesifikasi(class="form-control", rows="3",
-              placeholder="Contoh: Laptop Dell XPS 13, RAM 16GB, SSD 512GB") }} {% if
-              form.spesifikasi.errors %}
-              <div class="text-danger small mt-1">
-                {% for error in form.spesifikasi.errors %}
-                <div><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
-                {% endfor %}
-              </div>
-              {% endif %}
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                {{ form.satuan.label(class="form-label fw-bold") }}
-                <small class="text-muted d-block"
-                  >{{ form.satuan.description }}</small
-                >
-                {{ form.satuan(class="form-control", placeholder="Contoh: 5, 10, 25") }} {% if form.satuan.errors %}
-                <div class="text-danger small mt-1">
-                  {% for error in form.satuan.errors %}
+                  {% for error in form.merk_aset_tetap_id.errors %}
                   <div>
                     <i class="fas fa-exclamation-circle"></i> {{ error }}
                   </div>
@@ -98,14 +66,12 @@
             <!-- Kontrak/SPK -->
             <div class="row">
               <div class="col-md-6 mb-3">
-                {{ form.nomor_kontrak.label(class="form-label fw-bold") }} {{
-                form.nomor_kontrak(class="form-control", placeholder="Contoh: SPK/2024/001") }} {% if
-                form.nomor_kontrak.errors %}
+                {{ form.kontrak_spk.label(class="form-label fw-bold") }}
+                {{ form.kontrak_spk(class="form-select") }}
+                {% if form.kontrak_spk.errors %}
                 <div class="text-danger small mt-1">
-                  {% for error in form.nomor_kontrak.errors %}
-                  <div>
-                    <i class="fas fa-exclamation-circle"></i> {{ error }}
-                  </div>
+                  {% for error in form.kontrak_spk.errors %}
+                  <div><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
                   {% endfor %}
                 </div>
                 {% endif %}
@@ -124,6 +90,34 @@
                 </div>
                 {% endif %}
               </div>
+            </div>
+
+            <div class="mb-3">
+              {{ form.tempat_penggunaan.label(class="form-label fw-bold") }} {{
+              form.tempat_penggunaan(class="form-control", placeholder="Contoh: Ruang IT, Kantor Pusat") }} {% if
+              form.tempat_penggunaan.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.tempat_penggunaan.errors %}
+                <div>
+                  <i class="fas fa-exclamation-circle"></i> {{ error }}
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.nama_pengguna.label(class="form-label fw-bold") }} {{
+              form.nama_pengguna(class="form-control", placeholder="Contoh: Budi Santoso") }} {% if
+              form.nama_pengguna.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.nama_pengguna.errors %}
+                <div>
+                  <i class="fas fa-exclamation-circle"></i> {{ error }}
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
             </div>
 
             <hr />

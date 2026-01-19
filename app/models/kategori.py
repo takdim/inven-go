@@ -16,12 +16,16 @@ class KategoriBarang(db.Model):
     def __repr__(self):
         return f'<KategoriBarang {self.nama_kategori}>'
     
+    def get_total_item(self):
+        """Get total jumlah barang dalam kategori ini"""
+        return self.barang.count()
+    
     def to_dict(self):
         return {
             'id': self.id,
             'nama_kategori': self.nama_kategori,
             'deskripsi': self.deskripsi,
-            'jumlah_barang': self.barang.count()
+            'jumlah_barang': self.get_total_item()
         }
 
 
@@ -30,25 +34,30 @@ class MerkBarang(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     nama_merk = db.Column(db.String(100), unique=True, nullable=False)
-    deskripsi = db.Column(db.Text)
+    tipe = db.Column(db.String(100))
+    tanggal_pengadaan = db.Column(db.Date)
+    nomor_kontrak = db.Column(db.String(100))
+    spesifikasi = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationship
     barang = db.relationship('Barang', backref='merk', lazy='dynamic')
-    aset_tetap = db.relationship('AsetTetap', foreign_keys='AsetTetap.merk_id', lazy='dynamic')
-    
-    def get_total_item(self):
-        """Hitung total barang + aset tetap"""
-        return self.barang.count() + self.aset_tetap.count()
     
     def __repr__(self):
         return f'<MerkBarang {self.nama_merk}>'
+    
+    def get_total_item(self):
+        """Get total jumlah barang dengan merk ini"""
+        return self.barang.count()
     
     def to_dict(self):
         return {
             'id': self.id,
             'nama_merk': self.nama_merk,
-            'deskripsi': self.deskripsi,
-            'jumlah_barang': self.barang.count()
+            'tipe': self.tipe,
+            'tanggal_pengadaan': self.tanggal_pengadaan.isoformat() if self.tanggal_pengadaan else None,
+            'nomor_kontrak': self.nomor_kontrak,
+            'spesifikasi': self.spesifikasi,
+            'jumlah_barang': self.get_total_item()
         }

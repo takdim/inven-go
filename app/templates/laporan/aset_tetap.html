@@ -1,0 +1,114 @@
+{% extends "base.html" %} {% block content %}
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2><i class="fas fa-building"></i> Laporan Daftar Aset Tetap</h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('laporan.index') }}">Laporan</a>
+          </li>
+          <li class="breadcrumb-item active">Daftar Aset Tetap</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Filter Form -->
+  <div class="card mb-4">
+    <div class="card-header" role="button" data-bs-toggle="collapse" data-bs-target="#filterForm" aria-expanded="true" aria-controls="filterForm">
+      <i class="fas fa-filter"></i> Filter Laporan
+    </div>
+    <div class="collapse show" id="filterForm">
+      <div class="card-body">
+        <form method="GET" action="{{ url_for('laporan.laporan_aset_tetap') }}">
+          <div class="row">
+            <div class="col-md-3">
+              {{ form.kategori_id.label(class="form-label") }} {{
+              form.kategori_id(class="form-select") }}
+            </div>
+            <div class="col-md-3">
+              {{ form.merk_aset_tetap_id.label(class="form-label") }} {{
+              form.merk_aset_tetap_id(class="form-select") }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">&nbsp;</label>
+              <div class="d-grid gap-2">
+                {{ form.submit(class="btn btn-primary") }}
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Buttons -->
+  <div class="row mb-3">
+    <div class="col-12">
+      <div class="btn-group" role="group">
+        <a
+          href="{{ url_for('laporan.export_aset_tetap_excel', **request.args) }}"
+          class="btn btn-success"
+        >
+          <i class="fas fa-file-excel"></i> Export Excel
+        </a>
+        <a
+          href="{{ url_for('laporan.export_aset_tetap_pdf', **request.args) }}"
+          class="btn btn-danger"
+        >
+          <i class="fas fa-file-pdf"></i> Export PDF
+        </a>
+      </div>
+      <span class="ms-3 text-muted"
+        >Total: <strong>{{ aset_list|length }}</strong> item</span
+      >
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th>No</th>
+              <th>Kode Aset</th>
+              <th>Nama Aset</th>
+              <th>Kategori</th>
+              <th>Merk</th>
+              <th>Kontrak/SPK</th>
+              <th>Tempat Penggunaan</th>
+              <th>Nama Pengguna</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if aset_list %} {% for item in aset_list %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td><strong>{{ item.kode_aset }}</strong></td>
+              <td>{{ item.nama_aset }}</td>
+              <td>
+                {{ item.kategori.nama_kategori if item.kategori
+                else '-' }}
+              </td>
+              <td>
+                {{ item.merk_aset_tetap.nama_merk if item.merk_aset_tetap else '-' }}
+              </td>
+              <td>{{ item.kontrak_spk if item.kontrak_spk else '-' }}</td>
+              <td>{{ item.tempat_penggunaan if item.tempat_penggunaan else '-' }}</td>
+              <td>{{ item.nama_pengguna if item.nama_pengguna else '-' }}</td>
+            </tr>
+            {% endfor %} {% else %}
+            <tr>
+              <td colspan="8" class="text-center">Tidak ada data</td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

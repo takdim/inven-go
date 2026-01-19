@@ -24,11 +24,23 @@
             </div>
 
             <div class="mb-3">
-              {{ form.deskripsi.label(class="form-label fw-bold") }} {{
-              form.deskripsi(class="form-control" + (" is-invalid" if
-              form.deskripsi.errors else "")) }} {% if form.deskripsi.errors %}
+              {{ form.tanggal_pengadaan.label(class="form-label fw-bold") }} {{
+              form.tanggal_pengadaan(class="form-control" + (" is-invalid" if
+              form.tanggal_pengadaan.errors else ""), type="date") }} {% if form.tanggal_pengadaan.errors %}
               <div class="invalid-feedback">
-                {% for error in form.deskripsi.errors %}
+                {% for error in form.tanggal_pengadaan.errors %}
+                <div>{{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.spesifikasi.label(class="form-label fw-bold") }} {{
+              form.spesifikasi(class="form-control" + (" is-invalid" if
+              form.spesifikasi.errors else "")) }} {% if form.spesifikasi.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.spesifikasi.errors %}
                 <div>{{ error }}</div>
                 {% endfor %}
               </div>

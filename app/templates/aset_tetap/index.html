@@ -28,10 +28,7 @@
             <i class="fas fa-search"></i> Cari
           </button>
           {% if search %}
-          <a
-            href="{{ url_for('aset_tetap.index') }}"
-            class="btn btn-outline-danger"
-          >
+          <a href="{{ url_for('aset_tetap.index') }}" class="btn btn-outline-danger">
             <i class="fas fa-times"></i> Reset
           </a>
           {% endif %}
@@ -68,58 +65,44 @@
               <th>Kategori</th>
               <th>Merk</th>
               <th>Kontrak/SPK</th>
-              <th>Jumlah Aset</th>
+              <th>Tempat Penggunaan</th>
+              <th>Nama Pengguna</th>
               <th class="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
             {% if aset_list %} {% for item in aset_list %}
             <tr>
+              <td>{{ loop.index + (pagination.page - 1) * pagination.per_page }}</td>
+              <td><strong>{{ item.kode_aset }}</strong></td>
+              <td>{{ item.nama_aset }}</td>
               <td>
-                {{ loop.index + (pagination.page - 1) * pagination.per_page }}
-              </td>
-              <td><code>{{ item.aset.kode_aset }}</code></td>
-              <td>{{ item.aset.nama_aset }}</td>
-              <td>
-                {% if item.aset.kategori %}
-                <span class="badge bg-info"
-                  >{{ item.aset.kategori.nama_kategori }}</span
-                >
+                {% if item.kategori %}
+                <span class="badge bg-info">{{ item.kategori.nama_kategori }}</span>
                 {% else %}
                 <span class="text-muted">-</span>
                 {% endif %}
               </td>
               <td>
-                {% if item.aset.merk %}
-                <span class="badge bg-secondary"
-                  >{{ item.aset.merk.nama_merk }}</span
-                >
+                {% if item.merk_aset_tetap %}
+                <span class="badge bg-warning">{{ item.merk_aset_tetap.nama_merk }}</span>
                 {% else %}
                 <span class="text-muted">-</span>
                 {% endif %}
               </td>
-              <td>
-                {% if item.aset.nomor_kontrak %}
-                <span class="badge bg-success"
-                  >{{ item.aset.nomor_kontrak }}</span
-                >
-                {% else %}
-                <span class="text-muted">-</span>
-                {% endif %}
-              </td>
-              <td>
-                <span class="badge bg-primary">{{ item.aset.satuan }}</span>
-              </td>
+              <td>{{ item.kontrak_spk if item.kontrak_spk else '-' }}</td>
+              <td>{{ item.tempat_penggunaan if item.tempat_penggunaan else '-' }}</td>
+              <td>{{ item.nama_pengguna if item.nama_pengguna else '-' }}</td>
               <td class="text-center">
                 <a
-                  href="{{ url_for('aset_tetap.detail', id=item.aset.id) }}"
+                  href="{{ url_for('aset_tetap.detail', id=item.id) }}"
                   class="btn btn-sm btn-info"
                   title="Detail"
                 >
                   <i class="fas fa-eye"></i>
                 </a>
                 <a
-                  href="{{ url_for('aset_tetap.edit', id=item.aset.id) }}"
+                  href="{{ url_for('aset_tetap.edit', id=item.id) }}"
                   class="btn btn-sm btn-warning"
                   title="Edit"
                 >
@@ -127,9 +110,9 @@
                 </a>
                 <form
                   method="POST"
-                  action="{{ url_for('aset_tetap.hapus', id=item.aset.id) }}"
+                  action="{{ url_for('aset_tetap.hapus', id=item.id) }}"
                   style="display: inline"
-                  onsubmit="return confirm('Yakin ingin menghapus aset tetap ini?');"
+                  onsubmit="return confirm('Yakin hapus data ini?')"
                 >
                   <button
                     type="submit"
@@ -143,8 +126,8 @@
             </tr>
             {% endfor %} {% else %}
             <tr>
-              <td colspan="8" class="text-center text-muted">
-                <i class="fas fa-inbox"></i> Belum ada data aset tetap
+              <td colspan="8" class="text-center text-muted py-4">
+                Belum ada data aset tetap
               </td>
             </tr>
             {% endif %}
@@ -154,42 +137,45 @@
 
       <!-- Pagination -->
       {% if pagination.pages > 1 %}
-      <nav>
+      <nav aria-label="Page navigation">
         <ul class="pagination justify-content-center">
-          <li
-            class="page-item {% if not pagination.has_prev %}disabled{% endif %}"
-          >
+          {% if pagination.has_prev %}
+          <li class="page-item">
             <a
               class="page-link"
-              href="{{ url_for('aset_tetap.index', page=pagination.prev_num, search=search) if pagination.has_prev else '#' }}"
+              href="{{ url_for('aset_tetap.index', page=pagination.prev_num, search=search) }}"
             >
-              <i class="fas fa-chevron-left"></i>
+              Previous
             </a>
           </li>
-          {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1,
-          left_current=1, right_current=2) %} {% if page_num %}
-          <li
-            class="page-item {% if page_num == pagination.page %}active{% endif %}"
-          >
+          {% endif %} {% for page_num in pagination.iter_pages() %} {% if
+          page_num %} {% if page_num == pagination.page %}
+          <li class="page-item active">
+            <span class="page-link">{{ page_num }}</span>
+          </li>
+          {% else %}
+          <li class="page-item">
             <a
               class="page-link"
               href="{{ url_for('aset_tetap.index', page=page_num, search=search) }}"
-              >{{ page_num }}</a
             >
-          </li>
-          {% else %}
-          <li class="page-item disabled"><span class="page-link">...</span></li>
-          {% endif %} {% endfor %}
-          <li
-            class="page-item {% if not pagination.has_next %}disabled{% endif %}"
-          >
-            <a
-              class="page-link"
-              href="{{ url_for('aset_tetap.index', page=pagination.next_num, search=search) if pagination.has_next else '#' }}"
-            >
-              <i class="fas fa-chevron-right"></i>
+              {{ page_num }}
             </a>
           </li>
+          {% endif %} {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+          {% endif %} {% endfor %} {% if pagination.has_next %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="{{ url_for('aset_tetap.index', page=pagination.next_num, search=search) }}"
+            >
+              Next
+            </a>
+          </li>
+          {% endif %}
         </ul>
       </nav>
       {% endif %}

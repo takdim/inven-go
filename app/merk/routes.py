@@ -14,7 +14,9 @@ def index():
     query = MerkBarang.query
     
     if search:
-        query = query.filter(MerkBarang.nama_merk.like(f'%{search}%'))
+        query = query.filter(
+            MerkBarang.nama_merk.like(f'%{search}%')
+        )
     
     pagination = query.order_by(MerkBarang.created_at.desc()).paginate(
         page=page, per_page=10, error_out=False
@@ -23,7 +25,7 @@ def index():
     merk_list = pagination.items
     
     return render_template('merk/index.html',
-                         title='Data Merk Barang',
+                         title='Data Merk dan Tipe Barang',
                          merk_list=merk_list,
                          pagination=pagination,
                          search=search)
@@ -36,17 +38,18 @@ def tambah():
     if form.validate_on_submit():
         merk = MerkBarang(
             nama_merk=form.nama_merk.data,
-            deskripsi=form.deskripsi.data
+            tanggal_pengadaan=form.tanggal_pengadaan.data,
+            spesifikasi=form.spesifikasi.data
         )
         
         db.session.add(merk)
         db.session.commit()
         
-        flash('Merk berhasil ditambahkan!', 'success')
+        flash('Merk dan Tipe berhasil ditambahkan!', 'success')
         return redirect(url_for('merk.index'))
     
     return render_template('merk/form.html',
-                         title='Tambah Merk',
+                         title='Tambah Merk dan Tipe',
                          form=form)
 
 @bp.route('/edit/<int:id>', methods=['GET', 'POST'])
@@ -57,15 +60,16 @@ def edit(id):
     
     if form.validate_on_submit():
         merk.nama_merk = form.nama_merk.data
-        merk.deskripsi = form.deskripsi.data
+        merk.tanggal_pengadaan = form.tanggal_pengadaan.data
+        merk.spesifikasi = form.spesifikasi.data
         
         db.session.commit()
         
-        flash('Merk berhasil diupdate!', 'success')
+        flash('Merk dan Tipe berhasil diupdate!', 'success')
         return redirect(url_for('merk.index'))
     
     return render_template('merk/form.html',
-                         title='Edit Merk',
+                         title='Edit Merk dan Tipe',
                          form=form,
                          merk=merk)
 
@@ -76,11 +80,11 @@ def hapus(id):
     
     # Cek apakah merk digunakan oleh barang
     if merk.barang.count() > 0:
-        flash('Merk tidak dapat dihapus karena masih digunakan oleh barang!', 'danger')
+        flash('Merk dan Tipe tidak dapat dihapus karena masih digunakan oleh barang!', 'danger')
         return redirect(url_for('merk.index'))
     
     db.session.delete(merk)
     db.session.commit()
     
-    flash('Merk berhasil dihapus!', 'success')
+    flash('Merk dan Tipe berhasil dihapus!', 'success')
     return redirect(url_for('merk.index'))

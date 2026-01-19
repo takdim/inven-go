@@ -10,7 +10,7 @@
   </div>
 
   <div class="row">
-    <!-- Laporan Barang -->
+    <!-- Laporan Daftar Barang -->
     <div class="col-md-6 col-lg-4 mb-4">
       <div class="card border-primary h-100">
         <div class="card-body">
@@ -30,6 +30,33 @@
           <a
             href="{{ url_for('laporan.laporan_barang') }}"
             class="btn btn-primary w-100"
+          >
+            <i class="fas fa-eye"></i> Lihat Laporan
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Laporan Aset Tetap -->
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card border-danger h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <div class="flex-shrink-0">
+              <i class="fas fa-building fa-3x text-danger"></i>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <h5 class="card-title mb-0">Daftar Aset Tetap</h5>
+              <small class="text-muted">Master Aset Tetap</small>
+            </div>
+          </div>
+          <p class="card-text">
+            Laporan lengkap daftar aset tetap dengan informasi kategori, merk,
+            lokasi penggunaan, dan pengguna.
+          </p>
+          <a
+            href="{{ url_for('laporan.laporan_aset_tetap') }}"
+            class="btn btn-danger w-100"
           >
             <i class="fas fa-eye"></i> Lihat Laporan
           </a>

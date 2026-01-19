@@ -1,4 +1,6 @@
-{% extends "base.html" %} {% block title %}{{ title }} - Inven-Go{% endblock %}
+{% extends "base.html" %}
+{% block title %}{{ title }} - Inven-Go{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
   <div class="row mb-4">
@@ -6,8 +8,8 @@
       <h2><i class="fas fa-tag"></i> {{ title }}</h2>
     </div>
     <div class="col-md-6 text-end">
-      <a href="{{ url_for('merk.tambah') }}" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Tambah Merk & Tipe
+      <a href="{{ url_for('merk_aset_tetap.tambah') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Tambah Merk & Tipe Pertama
       </a>
     </div>
   </div>
@@ -15,7 +17,7 @@
   <!-- Search -->
   <div class="row mb-3">
     <div class="col-md-6">
-      <form method="GET" action="{{ url_for('merk.index') }}">
+      <form method="GET" action="{{ url_for('merk_aset_tetap.index') }}">
         <div class="input-group">
           <input
             type="text"
@@ -28,7 +30,7 @@
             <i class="fas fa-search"></i> Cari
           </button>
           {% if search %}
-          <a href="{{ url_for('merk.index') }}" class="btn btn-outline-danger">
+          <a href="{{ url_for('merk_aset_tetap.index') }}" class="btn btn-outline-danger">
             <i class="fas fa-times"></i> Reset
           </a>
           {% endif %}
@@ -61,55 +63,39 @@
             <tr>
               <th>No</th>
               <th>Nama Merk</th>
+              <th>Tipe</th>
               <th>Spesifikasi</th>
               <th>Tanggal Pengadaan</th>
+              <th>Kontrak/SPK</th>
               <th>Jumlah Barang</th>
               <th class="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
-            {% if merk_list %} {% for merk in merk_list %}
+            {% if merk_list %}
+            {% for merk in merk_list %}
             <tr>
-              <td>
-                {{ loop.index + (pagination.page - 1) * pagination.per_page }}
-              </td>
+              <td>{{ loop.index + (pagination.page - 1) * pagination.per_page }}</td>
               <td><strong>{{ merk.nama_merk }}</strong></td>
+              <td><strong>{{ merk.tipe or '-' }}</strong></td>
               <td>
-                {% if merk.spesifikasi %} {{ merk.spesifikasi[:50] }}{% if
-                merk.spesifikasi|length > 50 %}...{% endif %} {% else %}
-                <span class="text-muted">-</span>
-                {% endif %}
+                {% if merk.spesifikasi %}{{ merk.spesifikasi[:50] }}{% if merk.spesifikasi|length > 50 %}...{% endif %}{% else %}<span class="text-muted">-</span>{% endif %}
               </td>
               <td>
-                <small class="text-muted">
-                  {{ merk.tanggal_pengadaan.strftime('%d %b %Y') if merk.tanggal_pengadaan
-                  else '-' }}
-                </small>
+                <small class="text-muted">{{ merk.tanggal_pengadaan.strftime('%d %b %Y') if merk.tanggal_pengadaan else '-' }}</small>
               </td>
               <td>
-                <span class="badge bg-info"
-                  >{{ merk.get_total_item() }} barang</span
-                >
+                <span class="badge bg-secondary">{{ merk.nomor_kontrak if merk.nomor_kontrak else '-' }}</span>
+              </td>
+              <td>
+                <span class="badge bg-info">{{ merk.get_total_aset_by_criteria() }} barang</span>
               </td>
               <td class="text-center">
-                <a
-                  href="{{ url_for('merk.edit', id=merk.id) }}"
-                  class="btn btn-sm btn-warning"
-                  title="Edit"
-                >
+                <a href="{{ url_for('merk_aset_tetap.edit', id=merk.id) }}" class="btn btn-sm btn-warning" title="Edit">
                   <i class="fas fa-edit"></i>
                 </a>
-                <form
-                  method="POST"
-                  action="{{ url_for('merk.hapus', id=merk.id) }}"
-                  style="display: inline"
-                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus merk ini?')"
-                >
-                  <button
-                    type="submit"
-                    class="btn btn-sm btn-danger"
-                    title="Hapus"
-                  >
+                <form method="POST" action="{{ url_for('merk_aset_tetap.hapus', id=merk.id) }}" style="display: inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus merk ini?')">
+                  <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
                     <i class="fas fa-trash"></i>
                   </button>
                 </form>
@@ -117,10 +103,10 @@
             </tr>
             {% endfor %} {% else %}
             <tr>
-              <td colspan="7" class="text-center text-muted py-4">
+              <td colspan="8" class="text-center text-muted py-4">
                 <i class="fas fa-inbox fa-3x mb-3"></i>
                 <p>Belum ada data merk</p>
-                <a href="{{ url_for('merk.tambah') }}" class="btn btn-primary">
+                <a href="{{ url_for('merk_aset_tetap.tambah') }}" class="btn btn-primary">
                   <i class="fas fa-plus"></i> Tambah Merk & Tipe Pertama
                 </a>
               </td>
@@ -130,44 +116,29 @@
         </table>
       </div>
 
-      <!-- Pagination -->
       {% if pagination.pages > 1 %}
       <nav aria-label="Page navigation">
         <ul class="pagination justify-content-center">
-          <li
-            class="page-item {% if not pagination.has_prev %}disabled{% endif %}"
-          >
-            <a
-              class="page-link"
-              href="{{ url_for('merk.index', page=pagination.prev_num, search=search) if pagination.has_prev else '#' }}"
-            >
+          <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('merk_aset_tetap.index', page=pagination.prev_num, search=search) if pagination.has_prev else '#' }}">
               <i class="fas fa-chevron-left"></i> Previous
             </a>
           </li>
-
-          {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1,
-          left_current=1, right_current=2) %} {% if page_num %}
-          <li
-            class="page-item {% if page_num == pagination.page %}active{% endif %}"
-          >
-            <a
-              class="page-link"
-              href="{{ url_for('merk.index', page=page_num, search=search) }}"
-            >
+          {% for page_num in pagination.iter_pages() %}
+          {% if page_num %}
+          <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+            {% if page_num == pagination.page %}
+            <span class="page-link">{{ page_num }}</span>
+            {% else %}
+            <a class="page-link" href="{{ url_for('merk_aset_tetap.index', page=page_num, search=search) }}">
               {{ page_num }}
             </a>
+            {% endif %}
           </li>
-          {% else %}
-          <li class="page-item disabled"><span class="page-link">...</span></li>
-          {% endif %} {% endfor %}
-
-          <li
-            class="page-item {% if not pagination.has_next %}disabled{% endif %}"
-          >
-            <a
-              class="page-link"
-              href="{{ url_for('merk.index', page=pagination.next_num, search=search) if pagination.has_next else '#' }}"
-            >
+          {% endif %}
+          {% endfor %}
+          <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('merk_aset_tetap.index', page=pagination.next_num, search=search) if pagination.has_next else '#' }}">
               Next <i class="fas fa-chevron-right"></i>
             </a>
           </li>
