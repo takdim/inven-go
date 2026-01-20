@@ -88,6 +88,9 @@
 
           <!-- Action Buttons -->
           <div class="d-flex gap-2">
+            <a href="{{ url_for('aset_tetap.laporan_kerusakan_list', aset_id=aset.id) }}" class="btn btn-info">
+              <i class="fas fa-file-alt"></i> Laporan Kerusakan
+            </a>
             <a href="{{ url_for('aset_tetap.edit', id=aset.id) }}" class="btn btn-warning">
               <i class="fas fa-edit"></i> Edit
             </a>

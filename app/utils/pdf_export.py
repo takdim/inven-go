@@ -4,10 +4,11 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Image, HRFlowable
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from datetime import datetime
 from io import BytesIO
+import os
 
 
 class PDFExporter:
@@ -222,6 +223,150 @@ def export_kontrak_to_pdf(kontrak_list, filename=None):
         pdf.save(filename)
     
     return pdf.build()
+
+
+def export_laporan_kerusakan_to_pdf(laporan, logo_path=None):
+    """Export surat laporan kerusakan per aset ke PDF"""
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=2*cm,
+        leftMargin=2*cm,
+        topMargin=1.5*cm,
+        bottomMargin=2*cm
+    )
+
+    styles = getSampleStyleSheet()
+    header_bold = ParagraphStyle(
+        'HeaderBold',
+        parent=styles['Normal'],
+        alignment=TA_CENTER,
+        fontSize=11,
+        leading=13,
+        fontName='Helvetica-Bold'
+    )
+    header_normal = ParagraphStyle(
+        'HeaderNormal',
+        parent=styles['Normal'],
+        alignment=TA_CENTER,
+        fontSize=9.5,
+        leading=12
+    )
+    body_style = ParagraphStyle(
+        'Body',
+        parent=styles['Normal'],
+        fontSize=10,
+        leading=14
+    )
+
+    header_lines = [
+        "KEMENTERIAN PENDIDIKAN TINGGI, SAINS,",
+        "DAN TEKNOLOGI",
+        "UNIVERSITAS HASANUDDIN",
+        "PERPUSTAKAAN",
+        "Jalan Perintis Kemerdekaan Km. 10, Makassar 90245",
+        "Telepon (0411) 586200, FAX (0411) 585188",
+        "Laman https://library.unhas.ac.id    email : library@unhas.ac.id"
+    ]
+
+    elements = []
+
+    if logo_path and os.path.exists(logo_path):
+        logo = Image(logo_path, width=2.2*cm, height=2.2*cm)
+        header_text = "<br/>".join([
+            f"<b>{header_lines[0]}</b>",
+            f"<b>{header_lines[1]}</b>",
+            f"<b>{header_lines[2]}</b>",
+            f"<b>{header_lines[3]}</b>",
+            header_lines[4],
+            header_lines[5],
+            header_lines[6]
+        ])
+        header_table = Table([[logo, Paragraph(header_text, header_normal)]], colWidths=[2.6*cm, 13.4*cm])
+        header_table.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (1, -1), 'CENTER'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0)
+        ]))
+        elements.append(header_table)
+    else:
+        for idx, line in enumerate(header_lines):
+            style = header_bold if idx <= 3 else header_normal
+            elements.append(Paragraph(line, style))
+
+    elements.append(Spacer(1, 0.2*cm))
+    elements.append(HRFlowable(width="100%", thickness=1, color=colors.black))
+    elements.append(Spacer(1, 0.5*cm))
+
+    salam_pembuka = (
+        "Kepada Yth.<br/>"
+        "Kepala Sub Bagian (Kasubag) Perpustakaan<br/>"
+        "Universitas Hasanuddin<br/>"
+        "Di Tempat<br/><br/>"
+        "Dengan hormat,"
+    )
+    elements.append(Paragraph(salam_pembuka, body_style))
+    elements.append(Spacer(1, 0.3*cm))
+
+    pembuka = (
+        "Bersama ini kami sampaikan laporan kerusakan komputer yang terdapat di "
+        "lingkungan Perpustakaan Universitas Hasanuddin sebagai bahan pertimbangan "
+        "untuk dilakukan tindak lanjut perbaikan atau penggantian perangkat."
+    )
+    elements.append(Paragraph(pembuka, body_style))
+    elements.append(Spacer(1, 0.4*cm))
+
+    aset = laporan.aset_tetap
+    table_data = [
+        ['Keterangan', 'Detail'],
+        ['Nama Perangkat', aset.nama_aset],
+        ['Nama Pengguna', laporan.nama_pengguna],
+        ['Jumlah', f"{laporan.jumlah} Unit"],
+        ['Lokasi', laporan.lokasi],
+        ['Tanggal Diketahui Rusak', laporan.tanggal_diketahui_rusak.strftime('%d %B %Y')],
+        ['Jenis Kerusakan', laporan.jenis_kerusakan],
+        ['Penyebab (jika diketahui)', laporan.penyebab or '-'],
+        ['Tindakan yang sudah dilakukan', laporan.tindakan or '-'],
+        ['Kondisi Saat Ini', laporan.kondisi_saat_ini or '-'],
+        ['Dampak', laporan.dampak or '-']
+    ]
+
+    table = Table(table_data, colWidths=[6*cm, 10*cm])
+    table.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f2f2f2')),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('FONTSIZE', (0, 0), (-1, -1), 9.5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 6)
+    ]))
+    elements.append(table)
+
+    elements.append(Spacer(1, 0.4*cm))
+    penutup = (
+        "Demikian laporan kerusakan komputer ini kami sampaikan. "
+        "Atas perhatian dan tindak lanjut Bapak/Ibu, kami ucapkan terima kasih."
+    )
+    elements.append(Paragraph(penutup, body_style))
+    elements.append(Spacer(1, 0.6*cm))
+
+    tanggal_surat = laporan.created_at.strftime('%d %B %Y') if laporan.created_at else datetime.now().strftime('%d %B %Y')
+    elements.append(Paragraph(f"Makassar, {tanggal_surat}", body_style))
+    elements.append(Spacer(1, 0.6*cm))
+    elements.append(Paragraph("Hormat kami,", body_style))
+    elements.append(Spacer(1, 1.2*cm))
+
+    pelapor_nama = laporan.pelapor.nama_lengkap if laporan.pelapor else "...................................."
+    elements.append(Paragraph(f"({pelapor_nama})<br/>Petugas / Pelapor", body_style))
+
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer
 
 
 def export_transaksi_to_pdf(transaksi_list, jenis, tanggal_awal=None, tanggal_akhir=None, filename=None):

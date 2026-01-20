@@ -27,6 +27,12 @@ class AsetTetap(db.Model):
     kategori = db.relationship('KategoriBarang', foreign_keys=[kategori_id], backref='aset_tetap_list')
     merk = db.relationship('MerkBarang', foreign_keys=[merk_id], backref='aset_tetap_list')
     merk_aset_tetap = db.relationship('MerkAsetTetap', foreign_keys=[merk_aset_tetap_id], backref='aset_tetap_list')
+    laporan_kerusakan = db.relationship(
+        'LaporanKerusakan',
+        backref='aset_tetap',
+        lazy='dynamic',
+        cascade='all, delete-orphan'
+    )
     
     def __repr__(self):
         return f'<AsetTetap {self.kode_aset}>'

@@ -22,7 +22,8 @@ class User(UserMixin, db.Model):
     
     def set_password(self, password):
         """Hash password sebelum disimpan"""
-        self.password = generate_password_hash(password)
+        # Use PBKDF2 to avoid scrypt dependency on some macOS builds.
+        self.password = generate_password_hash(password, method="pbkdf2:sha256")
     
     def check_password(self, password):
         """Verifikasi password"""

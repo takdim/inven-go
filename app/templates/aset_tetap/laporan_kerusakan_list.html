@@ -1,0 +1,88 @@
+{% extends "base.html" %} {% block title %}{{ title }} - Inven-Go{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h2><i class="fas fa-file-alt"></i> {{ title }}</h2>
+      <div class="text-muted">
+        Aset: <strong>{{ aset.kode_aset }}</strong> - {{ aset.nama_aset }}
+      </div>
+    </div>
+    <div class="col-md-4 text-end">
+      <a href="{{ url_for('aset_tetap.laporan_kerusakan_tambah', aset_id=aset.id) }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Tambah Laporan
+      </a>
+      <a href="{{ url_for('aset_tetap.detail', id=aset.id) }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Kembali
+      </a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>No</th>
+              <th>Tanggal Diketahui</th>
+              <th>Nama Pengguna</th>
+              <th>Lokasi</th>
+              <th>Jenis Kerusakan</th>
+              <th>Status</th>
+              <th class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if laporan_list %}
+            {% for item in laporan_list %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ item.tanggal_diketahui_rusak.strftime('%d %b %Y') }}</td>
+              <td>{{ item.nama_pengguna }}</td>
+              <td>{{ item.lokasi }}</td>
+              <td>{{ item.jenis_kerusakan }}</td>
+              <td>
+                {% if item.status == 'draft' %}
+                <span class="badge bg-secondary">Draft</span>
+                {% elif item.status == 'terkirim' %}
+                <span class="badge bg-info">Terkirim</span>
+                {% else %}
+                <span class="badge bg-success">Selesai</span>
+                {% endif %}
+              </td>
+              <td class="text-center">
+                <a href="{{ url_for('aset_tetap.laporan_kerusakan_edit', id=item.id) }}" class="btn btn-sm btn-warning" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </a>
+                <a href="{{ url_for('aset_tetap.laporan_kerusakan_cetak_pdf', id=item.id) }}" class="btn btn-sm btn-danger" title="Cetak PDF">
+                  <i class="fas fa-file-pdf"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+              <td colspan="7" class="text-center text-muted py-4">
+                Belum ada laporan kerusakan
+              </td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

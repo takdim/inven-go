@@ -1,11 +1,15 @@
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, send_file, current_app
 from flask_login import login_required, current_user
 from app.aset_tetap import bp
-from app.aset_tetap.forms import AsetTetapForm
+from app.aset_tetap.forms import AsetTetapForm, LaporanKerusakanForm
 from app.models.aset_tetap import AsetTetap
+from app.models.laporan_kerusakan import LaporanKerusakan
 from app.models.kategori import KategoriBarang, MerkBarang
 from app.models.merk_aset_tetap import MerkAsetTetap
+from app.utils.pdf_export import export_laporan_kerusakan_to_pdf
 from app import db
+from datetime import datetime
+import os
 
 @bp.route('/')
 @login_required
@@ -132,3 +136,115 @@ def hapus(id):
     
     flash('Aset tetap berhasil dihapus!', 'success')
     return redirect(url_for('aset_tetap.index'))
+
+
+@bp.route('/<int:aset_id>/laporan-kerusakan')
+@login_required
+def laporan_kerusakan_list(aset_id):
+    """Daftar laporan kerusakan per aset"""
+    aset = AsetTetap.query.get_or_404(aset_id)
+    laporan_list = LaporanKerusakan.query.filter_by(
+        aset_tetap_id=aset.id
+    ).order_by(LaporanKerusakan.created_at.desc()).all()
+
+    return render_template(
+        'aset_tetap/laporan_kerusakan_list.html',
+        title='Laporan Kerusakan',
+        aset=aset,
+        laporan_list=laporan_list
+    )
+
+
+@bp.route('/<int:aset_id>/laporan-kerusakan/tambah', methods=['GET', 'POST'])
+@login_required
+def laporan_kerusakan_tambah(aset_id):
+    """Tambah laporan kerusakan untuk aset"""
+    aset = AsetTetap.query.get_or_404(aset_id)
+    form = LaporanKerusakanForm()
+
+    if request.method == 'GET':
+        form.nama_pengguna.data = aset.nama_pengguna or ''
+        form.lokasi.data = aset.tempat_penggunaan or ''
+        if not form.jumlah.data:
+            form.jumlah.data = 1
+
+    if form.validate_on_submit():
+        laporan = LaporanKerusakan(
+            aset_tetap_id=aset.id,
+            pelapor_id=current_user.id if current_user.is_authenticated else None,
+            tanggal_diketahui_rusak=form.tanggal_diketahui_rusak.data,
+            nama_pengguna=form.nama_pengguna.data,
+            lokasi=form.lokasi.data,
+            jumlah=form.jumlah.data,
+            jenis_kerusakan=form.jenis_kerusakan.data,
+            penyebab=form.penyebab.data,
+            tindakan=form.tindakan.data,
+            kondisi_saat_ini=form.kondisi_saat_ini.data,
+            dampak=form.dampak.data,
+            status=form.status.data
+        )
+        db.session.add(laporan)
+        db.session.commit()
+
+        flash('Laporan kerusakan berhasil disimpan!', 'success')
+        return redirect(url_for('aset_tetap.laporan_kerusakan_list', aset_id=aset.id))
+
+    return render_template(
+        'aset_tetap/laporan_kerusakan_form.html',
+        title='Tambah Laporan Kerusakan',
+        aset=aset,
+        form=form
+    )
+
+
+@bp.route('/laporan-kerusakan/<int:id>/edit', methods=['GET', 'POST'])
+@login_required
+def laporan_kerusakan_edit(id):
+    """Edit laporan kerusakan"""
+    laporan = LaporanKerusakan.query.get_or_404(id)
+    aset = laporan.aset_tetap
+    form = LaporanKerusakanForm(obj=laporan)
+
+    if form.validate_on_submit():
+        laporan.tanggal_diketahui_rusak = form.tanggal_diketahui_rusak.data
+        laporan.nama_pengguna = form.nama_pengguna.data
+        laporan.lokasi = form.lokasi.data
+        laporan.jumlah = form.jumlah.data
+        laporan.jenis_kerusakan = form.jenis_kerusakan.data
+        laporan.penyebab = form.penyebab.data
+        laporan.tindakan = form.tindakan.data
+        laporan.kondisi_saat_ini = form.kondisi_saat_ini.data
+        laporan.dampak = form.dampak.data
+        laporan.status = form.status.data
+        db.session.commit()
+
+        flash('Laporan kerusakan berhasil diperbarui!', 'success')
+        return redirect(url_for('aset_tetap.laporan_kerusakan_list', aset_id=aset.id))
+
+    return render_template(
+        'aset_tetap/laporan_kerusakan_form.html',
+        title='Edit Laporan Kerusakan',
+        aset=aset,
+        form=form,
+        laporan=laporan
+    )
+
+
+@bp.route('/laporan-kerusakan/<int:id>/cetak-pdf')
+@login_required
+def laporan_kerusakan_cetak_pdf(id):
+    """Cetak laporan kerusakan ke PDF"""
+    laporan = LaporanKerusakan.query.get_or_404(id)
+    logo_path = os.path.join(current_app.root_path, 'static', 'images', 'logo_institusi.png')
+    buffer = export_laporan_kerusakan_to_pdf(laporan, logo_path=logo_path)
+    filename = (
+        f"Surat_Laporan_Kerusakan_{laporan.aset_tetap.kode_aset}_"
+        f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    )
+
+    return send_file(
+        buffer,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=filename
+    )

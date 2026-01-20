@@ -2,8 +2,14 @@
 Script untuk membuat database dan tabel
 Jalankan: python init_db.py
 """
+from dotenv import load_dotenv
+
+# Load .env before importing app config so env vars are picked up.
+load_dotenv()
+
 from app import create_app, db
 from app.models import User, Barang, BarangMasuk, BarangKeluar, UserLog
+
 
 def init_database():
     app = create_app()
