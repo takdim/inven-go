@@ -68,3 +68,30 @@ class LaporanKerusakanForm(FlaskForm):
         ('selesai', 'Selesai')
     ], validators=[DataRequired()])
     submit = SubmitField('Simpan')
+
+
+class LaporanKerusakanPublicForm(FlaskForm):
+    aset_tetap_id = SelectField('Aset', coerce=int, validators=[DataRequired()])
+    tanggal_diketahui_rusak = DateField('Tanggal Diketahui Rusak', validators=[
+        DataRequired(message='Tanggal diketahui rusak wajib diisi')
+    ])
+    nama_pengguna = StringField('Nama Pengguna', validators=[
+        DataRequired(message='Nama pengguna wajib diisi'),
+        Length(max=255, message='Nama pengguna maksimal 255 karakter')
+    ])
+    lokasi = StringField('Lokasi', validators=[
+        DataRequired(message='Lokasi wajib diisi'),
+        Length(max=255, message='Lokasi maksimal 255 karakter')
+    ])
+    jumlah = IntegerField('Jumlah', validators=[
+        DataRequired(message='Jumlah wajib diisi'),
+        NumberRange(min=1, message='Jumlah minimal 1')
+    ])
+    jenis_kerusakan = TextAreaField('Jenis Kerusakan', validators=[
+        DataRequired(message='Jenis kerusakan wajib diisi')
+    ])
+    penyebab = TextAreaField('Penyebab (Jika Diketahui)', validators=[Optional()])
+    tindakan = TextAreaField('Tindakan yang Sudah Dilakukan', validators=[Optional()])
+    kondisi_saat_ini = TextAreaField('Kondisi Saat Ini', validators=[Optional()])
+    dampak = TextAreaField('Dampak', validators=[Optional()])
+    submit = SubmitField('Kirim Laporan')
