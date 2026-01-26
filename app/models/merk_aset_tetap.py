@@ -22,13 +22,24 @@ class MerkAsetTetap(db.Model):
         return AsetTetap.query.filter_by(merk_aset_tetap_id=self.id).count()
     
     def get_total_aset_by_criteria(self):
-        """Get total jumlah aset berdasarkan nama_merk, tipe, dan kontrak_spk"""
+        """Get total jumlah barang berdasarkan merk_aset_tetap_id, tipe, dan nomor_kontrak"""
         from app.models.aset_tetap import AsetTetap
-        count = AsetTetap.query.filter(
-            AsetTetap.merk_aset_tetap_id == self.id,
-            AsetTetap.kontrak_spk == self.nomor_kontrak
-        ).count()
-        return count if count > 0 else AsetTetap.query.filter_by(merk_aset_tetap_id=self.id).count()
+        from sqlalchemy import func
+        
+        # Filter by merk_aset_tetap_id
+        query = AsetTetap.query.filter_by(merk_aset_tetap_id=self.id)
+        
+        # If nomor_kontrak exists, also filter by it
+        if self.nomor_kontrak:
+            query = query.filter_by(kontrak_spk=self.nomor_kontrak)
+        
+        # Sum the total_barang column
+        total = db.session.query(func.sum(AsetTetap.total_barang)).filter_by(
+            merk_aset_tetap_id=self.id,
+            kontrak_spk=self.nomor_kontrak if self.nomor_kontrak else None
+        ).scalar()
+        
+        return total if total else 0
     
     def to_dict(self):
         return {

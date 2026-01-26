@@ -18,6 +18,7 @@ class AsetTetap(db.Model):
     kontrak_spk = db.Column(db.String(200), comment='Nomor kontrak/SPK')
     tempat_penggunaan = db.Column(db.String(255), comment='Lokasi penggunaan aset')
     nama_pengguna = db.Column(db.String(255), comment='Nama pengguna/pemakai aset')
+    total_barang = db.Column(db.Integer, default=0, comment='Total jumlah barang')
     stok_awal = db.Column(db.Integer, default=0)
     stok_minimum = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

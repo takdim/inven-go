@@ -67,6 +67,7 @@
               <th>Kontrak/SPK</th>
               <th>Tempat Penggunaan</th>
               <th>Nama Pengguna</th>
+              <th class="text-center">Total Barang</th>
               <th class="text-center">Aksi</th>
             </tr>
           </thead>
@@ -93,6 +94,7 @@
               <td>{{ item.kontrak_spk if item.kontrak_spk else '-' }}</td>
               <td>{{ item.tempat_penggunaan if item.tempat_penggunaan else '-' }}</td>
               <td>{{ item.nama_pengguna if item.nama_pengguna else '-' }}</td>
+              <td class="text-center"><span class="badge bg-success">{{ item.total_barang if item.total_barang else 0 }}</span></td>
               <td class="text-center">
                 <a
                   href="{{ url_for('aset_tetap.detail', id=item.id) }}"
@@ -126,7 +128,7 @@
             </tr>
             {% endfor %} {% else %}
             <tr>
-              <td colspan="8" class="text-center text-muted py-4">
+              <td colspan="10" class="text-center text-muted py-4">
                 Belum ada data aset tetap
               </td>
             </tr>

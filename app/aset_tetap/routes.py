@@ -6,6 +6,7 @@ from app.models.aset_tetap import AsetTetap
 from app.models.laporan_kerusakan import LaporanKerusakan
 from app.models.kategori import KategoriBarang, MerkBarang
 from app.models.merk_aset_tetap import MerkAsetTetap
+from app.models.barang import Barang
 from app.utils.pdf_export import export_laporan_kerusakan_to_pdf
 from app import db
 from datetime import datetime
@@ -17,6 +18,9 @@ def index():
     """Halaman daftar aset tetap"""
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '', type=str)
+    
+    # Hitung total barang
+    total_barang = Barang.query.count()
     
     query = AsetTetap.query
     
@@ -36,7 +40,8 @@ def index():
                          title='Daftar Aset Tetap',
                          aset_list=aset_list,
                          pagination=pagination,
-                         search=search)
+                         search=search,
+                         total_barang=total_barang)
 
 @bp.route('/tambah', methods=['GET', 'POST'])
 @login_required
@@ -67,7 +72,8 @@ def tambah():
             tanggal_kontrak=form.tanggal_kontrak.data,
             kontrak_spk=form.kontrak_spk.data,
             tempat_penggunaan=form.tempat_penggunaan.data,
-            nama_pengguna=form.nama_pengguna.data
+            nama_pengguna=form.nama_pengguna.data,
+            total_barang=form.total_barang.data if form.total_barang.data else 0
         )
         
         db.session.add(aset)
@@ -114,6 +120,7 @@ def edit(id):
         aset.kontrak_spk = form.kontrak_spk.data
         aset.tempat_penggunaan = form.tempat_penggunaan.data
         aset.nama_pengguna = form.nama_pengguna.data
+        aset.total_barang = form.total_barang.data if form.total_barang.data else 0
         
         db.session.commit()
         

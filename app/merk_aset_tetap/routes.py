@@ -1,9 +1,11 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, send_file
 from flask_login import login_required
 from app.merk_aset_tetap import bp
 from app.models.merk_aset_tetap import MerkAsetTetap
 from app.merk_aset_tetap.forms import MerkAsetTetapForm
+from app.utils.pdf_export import export_merk_aset_tetap_to_pdf
 from app import db
+from datetime import datetime
 
 @bp.route('/')
 @login_required
@@ -104,3 +106,29 @@ def hapus(id):
     
     flash('Merk Aset Tetap berhasil dihapus!', 'success')
     return redirect(url_for('merk_aset_tetap.index'))
+
+
+@bp.route('/cetak-laporan')
+@login_required
+def cetak_laporan():
+    """Cetak laporan daftar merk aset tetap ke PDF"""
+    search = request.args.get('search', '', type=str)
+    
+    query = MerkAsetTetap.query
+    
+    if search:
+        query = query.filter(
+            MerkAsetTetap.nama_merk.like(f'%{search}%')
+        )
+    
+    merk_list = query.order_by(MerkAsetTetap.created_at.desc()).all()
+    
+    # Generate PDF
+    pdf_data = export_merk_aset_tetap_to_pdf(merk_list)
+    
+    return send_file(
+        pdf_data,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=f'Laporan_Merk_Aset_Tetap_{datetime.now().strftime("%d%m%Y_%H%M%S")}.pdf'
+    )

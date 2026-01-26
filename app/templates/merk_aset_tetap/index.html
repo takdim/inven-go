@@ -8,6 +8,9 @@
       <h2><i class="fas fa-tag"></i> {{ title }}</h2>
     </div>
     <div class="col-md-6 text-end">
+      <a href="{{ url_for('merk_aset_tetap.cetak_laporan', search=search) }}" class="btn btn-danger me-2" target="_blank">
+        <i class="fas fa-file-pdf"></i> Cetak Laporan
+      </a>
       <a href="{{ url_for('merk_aset_tetap.tambah') }}" class="btn btn-primary">
         <i class="fas fa-plus"></i> Tambah Merk & Tipe Pertama
       </a>

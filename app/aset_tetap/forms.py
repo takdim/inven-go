@@ -26,6 +26,10 @@ class AsetTetapForm(FlaskForm):
         Optional(),
         Length(max=255, message='Nama pengguna maksimal 255 karakter')
     ])
+    total_barang = IntegerField('Total Barang', validators=[
+        Optional(),
+        NumberRange(min=0, message='Total barang minimal 0')
+    ])
     submit = SubmitField('Simpan')
     
     def __init__(self, original_kode=None, *args, **kwargs):

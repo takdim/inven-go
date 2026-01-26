@@ -131,7 +131,7 @@ def export_barang_to_pdf(barang_list, filename=None):
     
     # Title
     pdf.add_title(
-        "LAPORAN DAFTAR BARANG",
+        "LAPORAN DAFTAR BARANG PERPUSTAKAAN UNIVERSITAS HASANUDDIN",
         f"Per {datetime.now().strftime('%d %B %Y')}"
     )
     
@@ -184,7 +184,7 @@ def export_kontrak_to_pdf(kontrak_list, filename=None):
     
     # Title
     pdf.add_title(
-        "LAPORAN DAFTAR KONTRAK/SPK",
+        "LAPORAN DAFTAR KONTRAK/SPK PERPUSTAKAAN UNIVERSITAS HASANUDDIN",
         f"Per {datetime.now().strftime('%d %B %Y')}"
     )
     
@@ -374,7 +374,7 @@ def export_transaksi_to_pdf(transaksi_list, jenis, tanggal_awal=None, tanggal_ak
     pdf = PDFExporter(orientation='landscape')
     
     # Title
-    title = f"LAPORAN BARANG {jenis.upper()}"
+    title = f"LAPORAN BARANG {jenis.upper()} PERPUSTAKAAN UNIVERSITAS HASANUDDIN"
     if tanggal_awal and tanggal_akhir:
         subtitle = f"Periode: {tanggal_awal.strftime('%d/%m/%Y')} - {tanggal_akhir.strftime('%d/%m/%Y')}"
     else:
@@ -416,3 +416,111 @@ def export_transaksi_to_pdf(transaksi_list, jenis, tanggal_awal=None, tanggal_ak
         pdf.save(filename)
     
     return pdf.build()
+
+
+def export_merk_aset_tetap_to_pdf(merk_list, filename=None):
+    """Export daftar merk aset tetap ke PDF"""
+    from reportlab.lib.pagesizes import landscape, letter
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib import colors
+    from reportlab.lib.units import inch
+    from io import BytesIO
+    
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter), topMargin=0.5*inch, bottomMargin=0.5*inch)
+    
+    elements = []
+    
+    # Styles
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=14,
+        textColor=colors.HexColor('#366092'),
+        spaceAfter=6,
+        alignment=1  # Center
+    )
+    subtitle_style = ParagraphStyle(
+        'Subtitle',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=colors.grey,
+        spaceAfter=12,
+        alignment=1  # Center
+    )
+    info_style = ParagraphStyle(
+        'Info',
+        parent=styles['Normal'],
+        fontSize=8,
+        textColor=colors.grey,
+        spaceAfter=12,
+        alignment=0  # Left
+    )
+    
+    # Title
+    elements.append(Paragraph('LAPORAN DATA MERK ASET TETAP PERPUSTAKAAN UNIVERSITAS HASANUDDIN', title_style))
+    elements.append(Paragraph(f'Per {datetime.now().strftime("%d %B %Y")}', subtitle_style))
+    elements.append(Paragraph(f'Total Merk: <b>{len(merk_list)} item</b> | Dicetak pada: {datetime.now().strftime("%d/%m/%Y %H:%M")}', info_style))
+    
+    # Table data
+    table_data = [['No', 'Nama Merk', 'Tipe', 'Spesifikasi', 'Tanggal Pengadaan', 'Kontrak/SPK', 'Jumlah Aset']]
+    
+    for idx, merk in enumerate(merk_list, 1):
+        spesifikasi = merk.spesifikasi[:40] + '...' if merk.spesifikasi and len(merk.spesifikasi) > 40 else (merk.spesifikasi or '-')
+        
+        table_data.append([
+            str(idx),
+            merk.nama_merk,
+            merk.tipe or '-',
+            spesifikasi,
+            merk.tanggal_pengadaan.strftime('%d/%m/%Y') if merk.tanggal_pengadaan else '-',
+            merk.nomor_kontrak or '-',
+            str(merk.get_total_aset_by_criteria())
+        ])
+    
+    # Create table with optimized column widths for landscape
+    # Landscape letter is 11 inches wide, minus 1 inch for margins = 10 inches
+    # No: 0.35", Nama Merk: 1.1", Tipe: 0.9", Spesifikasi: 1.5", Tanggal: 1.0", Kontrak/SPK: 1.2", Jumlah Aset: 0.9"
+    table = Table(table_data, colWidths=[0.35*inch, 1.1*inch, 0.9*inch, 1.5*inch, 1.0*inch, 1.2*inch, 0.9*inch])
+    
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#366092')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (0, -1), 'CENTER'),
+        ('ALIGN', (1, 0), (1, -1), 'LEFT'),
+        ('ALIGN', (2, 0), (2, -1), 'CENTER'),
+        ('ALIGN', (3, 0), (3, -1), 'LEFT'),
+        ('ALIGN', (4, 0), (4, -1), 'CENTER'),
+        ('ALIGN', (5, 0), (5, -1), 'CENTER'),
+        ('ALIGN', (6, 0), (6, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('TOPPADDING', (0, 0), (-1, 0), 8),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('FONTSIZE', (0, 1), (-1, -1), 8),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f5f5')]),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+        ('TOPPADDING', (0, 1), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+    ]))
+    
+    # Set row height for data rows to accommodate wrapped text
+    for i in range(len(table_data)):
+        if i == 0:  # Header row
+            table.setStyle(TableStyle([('MINHEIGHT', (0, 0), (-1, 0), 0.3*inch)]))
+        else:  # Data rows
+            table.setStyle(TableStyle([('MINHEIGHT', (0, i), (-1, i), 0.4*inch)]))
+    
+    elements.append(table)
+    elements.append(Spacer(1, 0.3*inch))
+    elements.append(Paragraph(f'<i>Dibuat oleh Inven-Go System</i>', info_style))
+    
+    doc.build(elements)
+    buffer.seek(0)
+    
+    return buffer

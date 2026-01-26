@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from app.dashboard import bp
 from app.models.barang import Barang, BarangMasuk, BarangKeluar
 from app.models.user import User
+from app.models.aset_tetap import AsetTetap
 from app import db
 from sqlalchemy import func
 
@@ -13,7 +14,7 @@ def index():
     total_barang = Barang.query.count()
     total_transaksi_masuk = BarangMasuk.query.count()
     total_transaksi_keluar = BarangKeluar.query.count()
-    total_users = User.query.count()
+    total_aset = AsetTetap.query.count()
     
     # Barang dengan stok rendah (contoh: < 10)
     barang_stok_rendah = []
@@ -47,7 +48,7 @@ def index():
                          total_barang=total_barang,
                          total_transaksi_masuk=total_transaksi_masuk,
                          total_transaksi_keluar=total_transaksi_keluar,
-                         total_users=total_users,
+                         total_aset=total_aset,
                          barang_stok_rendah=barang_stok_rendah,
                          barang_habis_pakai_rendah=barang_habis_pakai_rendah,
                          transaksi_masuk_terbaru=transaksi_masuk_terbaru,

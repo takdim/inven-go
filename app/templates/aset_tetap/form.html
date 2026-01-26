@@ -120,6 +120,20 @@
               {% endif %}
             </div>
 
+            <div class="mb-3">
+              {{ form.total_barang.label(class="form-label fw-bold") }} {{
+              form.total_barang(class="form-control", type="number", placeholder="Jumlah barang") }} {% if
+              form.total_barang.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.total_barang.errors %}
+                <div>
+                  <i class="fas fa-exclamation-circle"></i> {{ error }}
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
             <hr />
 
             <div class="d-flex justify-content-between">
