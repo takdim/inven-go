@@ -6,6 +6,7 @@ from app.merk_aset_tetap.forms import MerkAsetTetapForm
 from app.utils.pdf_export import export_merk_aset_tetap_to_pdf
 from app import db
 from datetime import datetime
+from sqlalchemy import func
 
 @bp.route('/')
 @login_required
@@ -106,6 +107,42 @@ def hapus(id):
     
     flash('Merk Aset Tetap berhasil dihapus!', 'success')
     return redirect(url_for('merk_aset_tetap.index'))
+
+
+@bp.route('/detail/<int:id>')
+@login_required
+def detail(id):
+    merk = MerkAsetTetap.query.get_or_404(id)
+
+    from app.models.aset_tetap import AsetTetap
+
+    aset_query = AsetTetap.query.filter_by(merk_aset_tetap_id=merk.id)
+    aset_total = aset_query.count()
+
+    total_barang_all = (
+        db.session.query(func.sum(AsetTetap.total_barang))
+        .filter_by(merk_aset_tetap_id=merk.id)
+        .scalar()
+        or 0
+    )
+
+    total_barang_by_criteria = merk.get_total_aset_by_criteria()
+
+    aset_list = (
+        aset_query.order_by(AsetTetap.created_at.desc()).limit(20).all()
+        if aset_total > 0
+        else []
+    )
+
+    return render_template(
+        'merk_aset_tetap/detail.html',
+        title=f'Detail Merk Aset Tetap {merk.nama_merk}',
+        merk=merk,
+        aset_total=aset_total,
+        total_barang_all=total_barang_all,
+        total_barang_by_criteria=total_barang_by_criteria,
+        aset_list=aset_list,
+    )
 
 
 @bp.route('/cetak-laporan')

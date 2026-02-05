@@ -88,3 +88,26 @@ def hapus(id):
     
     flash('Merk dan Tipe berhasil dihapus!', 'success')
     return redirect(url_for('merk.index'))
+
+
+@bp.route('/detail/<int:id>')
+@login_required
+def detail(id):
+    merk = MerkBarang.query.get_or_404(id)
+
+    from app.models.barang import Barang
+
+    barang_total = merk.barang.count()
+    barang_list = (
+        merk.barang.order_by(Barang.created_at.desc()).limit(20).all()
+        if barang_total > 0
+        else []
+    )
+
+    return render_template(
+        'merk/detail.html',
+        title=f'Detail Merk {merk.nama_merk}',
+        merk=merk,
+        barang_total=barang_total,
+        barang_list=barang_list,
+    )

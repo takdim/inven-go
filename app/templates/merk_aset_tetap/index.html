@@ -79,7 +79,15 @@
             {% for merk in merk_list %}
             <tr>
               <td>{{ loop.index + (pagination.page - 1) * pagination.per_page }}</td>
-              <td><strong>{{ merk.nama_merk }}</strong></td>
+              <td>
+                <a
+                  href="{{ url_for('merk_aset_tetap.detail', id=merk.id) }}"
+                  class="text-decoration-none"
+                  title="Lihat Detail"
+                >
+                  <strong>{{ merk.nama_merk }}</strong>
+                </a>
+              </td>
               <td><strong>{{ merk.tipe or '-' }}</strong></td>
               <td>
                 {% if merk.spesifikasi %}{{ merk.spesifikasi[:50] }}{% if merk.spesifikasi|length > 50 %}...{% endif %}{% else %}<span class="text-muted">-</span>{% endif %}
@@ -94,6 +102,13 @@
                 <span class="badge bg-info">{{ merk.get_total_aset_by_criteria() }} barang</span>
               </td>
               <td class="text-center">
+                <a
+                  href="{{ url_for('merk_aset_tetap.detail', id=merk.id) }}"
+                  class="btn btn-sm btn-info text-white"
+                  title="Detail"
+                >
+                  <i class="fas fa-eye"></i>
+                </a>
                 <a href="{{ url_for('merk_aset_tetap.edit', id=merk.id) }}" class="btn btn-sm btn-warning" title="Edit">
                   <i class="fas fa-edit"></i>
                 </a>

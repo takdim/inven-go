@@ -1,0 +1,225 @@
+{% extends "base.html" %} {% block title %}{{ title }} - Inven-Go{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <!-- Breadcrumb -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2 class="mb-0"><i class="fas fa-tag"></i> Detail Merk</h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('merk.index') }}">Data Merk &amp; Tipe</a>
+          </li>
+          <li class="breadcrumb-item active">{{ merk.nama_merk }}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if messages
+  %} {% for category, message in messages %}
+  <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %} {% endif %} {% endwith %}
+
+  <div class="row mb-4">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div
+          class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+        >
+          <h5 class="mb-0"><i class="fas fa-tag"></i> Informasi Merk</h5>
+          <div>
+            <a href="{{ url_for('merk.edit', id=merk.id) }}" class="btn btn-sm btn-warning">
+              <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{{ url_for('merk.index') }}" class="btn btn-sm btn-light">
+              <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Nama Merk</label>
+              <div class="fw-bold fs-5">{{ merk.nama_merk }}</div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Jumlah Barang</label>
+              <div>
+                <span class="badge bg-info fs-6">{{ barang_total }} barang</span>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Tipe</label>
+              <div class="fw-bold">
+                {{ merk.tipe if merk.tipe else '-' }}
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">
+                <i class="fas fa-file-contract"></i> Nomor Kontrak/SPK
+              </label>
+              <div class="fw-bold">
+                {{ merk.nomor_kontrak if merk.nomor_kontrak else '-' }}
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="text-muted small mb-1">Tanggal Pengadaan</label>
+              <div class="fw-bold">
+                {{ merk.tanggal_pengadaan.strftime('%d %b %Y') if merk.tanggal_pengadaan else '-' }}
+              </div>
+            </div>
+
+            <div class="col-12 mb-3">
+              <label class="text-muted small mb-1">Spesifikasi</label>
+              <div class="border rounded p-3 bg-light">
+                {% if merk.spesifikasi %}
+                <pre class="mb-0" style="white-space: pre-wrap">{{ merk.spesifikasi }}</pre>
+                {% else %}
+                <span class="text-muted fst-italic">Tidak ada spesifikasi</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <a
+              href="{{ url_for('laporan.laporan_barang', merk_id=merk.id) }}"
+              class="btn btn-sm btn-outline-primary"
+            >
+              <i class="fas fa-chart-bar"></i> Lihat Laporan Barang
+            </a>
+
+            <form
+              method="POST"
+              action="{{ url_for('merk.hapus', id=merk.id) }}"
+              style="display: inline"
+              onsubmit="return confirm('Apakah Anda yakin ingin menghapus merk ini?')"
+            >
+              <button
+                type="submit"
+                class="btn btn-sm btn-danger"
+                {% if barang_total > 0 %}disabled{% endif %}
+                title="{% if barang_total > 0 %}Tidak bisa dihapus (sedang digunakan){% else %}Hapus{% endif %}"
+              >
+                <i class="fas fa-trash"></i> Hapus
+              </button>
+            </form>
+          </div>
+
+          {% if barang_total > 0 %}
+          <small class="text-muted d-block mt-2">
+            <i class="fas fa-info-circle"></i> Merk tidak dapat dihapus karena masih digunakan oleh barang.
+          </small>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h6 class="mb-0"><i class="fas fa-clock"></i> Informasi Sistem</h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-2">
+            <div class="text-muted small">Dibuat</div>
+            <div class="fw-bold">
+              {{ merk.created_at.strftime('%d %b %Y %H:%M') if merk.created_at else '-' }}
+            </div>
+          </div>
+          <div>
+            <div class="text-muted small">Terakhir Update</div>
+            <div class="fw-bold">
+              {{ merk.updated_at.strftime('%d %b %Y %H:%M') if merk.updated_at else '-' }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daftar Barang -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-box"></i> Barang dengan Merk Ini
+            <span class="badge bg-light text-success">{{ barang_total }}</span>
+          </h5>
+        </div>
+
+        <div class="card-body p-0">
+          {% if barang_list %}
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Kode</th>
+                  <th>Nama Barang</th>
+                  <th>Jenis</th>
+                  <th>Kategori</th>
+                  <th class="text-end">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in barang_list %}
+                <tr>
+                  <td><code>{{ item.kode_barang }}</code></td>
+                  <td>{{ item.nama_barang }}</td>
+                  <td>
+                    {% if item.jenis_barang == 'habis_pakai' %}
+                    <span class="badge bg-warning text-dark">Habis Pakai</span>
+                    {% else %}
+                    <span class="badge bg-primary">Inventaris</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {{ item.kategori.nama_kategori if item.kategori else '-' }}
+                  </td>
+                  <td class="text-end">
+                    <a
+                      href="{{ url_for('barang.detail', id=item.id) }}"
+                      class="btn btn-sm btn-outline-primary"
+                    >
+                      <i class="fas fa-info-circle"></i> Detail
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% if barang_total > (barang_list|length) %}
+          <div class="card-footer text-center">
+            <a
+              href="{{ url_for('laporan.laporan_barang', merk_id=merk.id) }}"
+              class="btn btn-sm btn-link"
+            >
+              Lihat Semua (via Laporan) <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+          {% endif %}
+          {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="fas fa-inbox fa-3x mb-3"></i>
+            <div>Belum ada barang yang menggunakan merk ini</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

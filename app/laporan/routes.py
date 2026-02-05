@@ -616,6 +616,7 @@ def export_aset_tetap_pdf():
     from reportlab.lib import colors
     from reportlab.lib.units import inch
     from io import BytesIO
+    from xml.sax.saxutils import escape
     
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=landscape(letter), topMargin=0.5*inch, bottomMargin=0.5*inch)
@@ -652,48 +653,95 @@ def export_aset_tetap_pdf():
     elements.append(Paragraph('Laporan Daftar Aset Tetap Perpustakaan Universitas Hasanuddin', title_style))
     elements.append(Paragraph(f'Per {datetime.now().strftime("%d %B %Y")}', subtitle_style))
     elements.append(Paragraph(f'Total Aset: <b>{len(aset_list)} item</b> | Dicetak pada: {datetime.now().strftime("%d/%m/%Y %H:%M")}', info_style))
+
+    cell_style_left = ParagraphStyle(
+        'CellLeft',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=7.5,
+        leading=9,
+        alignment=0,  # Left
+        wordWrap='LTR',
+        splitLongWords=1,  # force-wrap long tokens (e.g. 930/1-04/SPK/...)
+    )
+    cell_style_center = ParagraphStyle('CellCenter', parent=cell_style_left, alignment=1)
+    cell_style_kontrak = ParagraphStyle(
+        'CellKontrak',
+        parent=cell_style_center,
+        fontSize=7,
+        leading=8.5,
+    )
+    header_cell_style = ParagraphStyle(
+        'HeaderCell',
+        parent=cell_style_center,
+        fontName='Helvetica-Bold',
+        fontSize=8,
+        leading=10,
+        textColor=colors.whitesmoke,
+    )
+
+    def make_breakable(value: str) -> str:
+        # Add zero-width spaces after separators so ReportLab can wrap strings
+        # that have no natural spaces (slashes, hyphens, underscores, etc.).
+        return (
+            value.replace('/', '/\u200b')
+            .replace('-', '-\u200b')
+            .replace('_', '_\u200b')
+        )
+
+    def p(text, style):
+        if text is None:
+            text = '-'
+        raw = str(text)
+        if len(raw) > 18 and any(sep in raw for sep in ['/', '-', '_']):
+            raw = make_breakable(raw)
+        safe = escape(raw).replace('\n', '<br/>')
+        return Paragraph(safe, style)
     
     # Prepare table data
-    table_data = [['No', 'Kode Aset', 'Nama Aset', 'Kategori', 'Merk', 'Kontrak/SPK', 'Tempat Penggunaan', 'Nama Pengguna', 'Total Barang']]
+    table_data = [[
+        p('No', header_cell_style),
+        p('Kode Aset', header_cell_style),
+        p('Nama Aset', header_cell_style),
+        p('Kategori', header_cell_style),
+        p('Merk', header_cell_style),
+        p('Kontrak/SPK', header_cell_style),
+        p('Tempat Penggunaan', header_cell_style),
+        p('Nama Pengguna', header_cell_style),
+        p('Total Barang', header_cell_style),
+    ]]
     
     for idx, aset in enumerate(aset_list, 1):
         table_data.append([
-            str(idx),
-            aset.kode_aset,
-            aset.nama_aset,
-            aset.kategori.nama_kategori if aset.kategori else '-',
-            aset.merk_aset_tetap.nama_merk if aset.merk_aset_tetap else '-',
-            aset.kontrak_spk or '-',
-            aset.tempat_penggunaan or '-',
-            aset.nama_pengguna or '-',
-            str(aset.total_barang if aset.total_barang else 0)
+            p(idx, cell_style_center),
+            p(aset.kode_aset, cell_style_center),
+            p(aset.nama_aset, cell_style_left),
+            p(aset.kategori.nama_kategori if aset.kategori else '-', cell_style_center),
+            p(aset.merk_aset_tetap.nama_merk if aset.merk_aset_tetap else '-', cell_style_center),
+            p(aset.kontrak_spk or '-', cell_style_kontrak),
+            p(aset.tempat_penggunaan or '-', cell_style_left),
+            p(aset.nama_pengguna or '-', cell_style_left),
+            p(aset.total_barang if aset.total_barang else 0, cell_style_center),
         ])
     
     # Create table with optimized column widths
     # Landscape letter is 11 inches wide, minus 1 inch for margins = 10 inches
-    # No: 0.35", Kode Aset: 0.8", Nama Aset: 1.2", Kategori: 0.9", Merk: 0.9", Kontrak/SPK: 1.5", Tempat Penggunaan: 1.5", Nama Pengguna: 1.0", Total Barang: 0.8"
-    table = Table(table_data, colWidths=[0.35*inch, 0.8*inch, 1.2*inch, 0.9*inch, 0.9*inch, 1.5*inch, 1.5*inch, 1.0*inch, 0.8*inch])
-    
+    # No: 0.35", Kode Aset: 0.8", Nama Aset: 1.2", Kategori: 0.9", Merk: 0.9", Kontrak/SPK: 2.0", Tempat Penggunaan: 1.5", Nama Pengguna: 1.0", Total Barang: 0.8"
+    table = Table(
+        table_data,
+        colWidths=[0.35*inch, 0.8*inch, 1.2*inch, 0.9*inch, 0.9*inch, 2.0*inch, 1.5*inch, 1.0*inch, 0.8*inch],
+        repeatRows=1,
+    )
+
     table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#366092')),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (0, -1), 'CENTER'),
-        ('ALIGN', (1, 0), (1, -1), 'CENTER'),
-        ('ALIGN', (2, 0), (2, -1), 'LEFT'),
-        ('ALIGN', (3, 0), (3, -1), 'CENTER'),
-        ('ALIGN', (4, 0), (4, -1), 'CENTER'),
-        ('ALIGN', (5, 0), (5, -1), 'CENTER'),
-        ('ALIGN', (6, 0), (6, -1), 'LEFT'),
-        ('ALIGN', (7, 0), (7, -1), 'LEFT'),
-        ('ALIGN', (8, 0), (8, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 8),
+        ('WORDWRAP', (0, 0), (-1, -1), 'LTR'),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
         ('TOPPADDING', (0, 0), (-1, 0), 8),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-        ('FONTSIZE', (0, 1), (-1, -1), 8),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f5f5')]),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
+        ('VALIGN', (0, 1), (-1, -1), 'TOP'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
         ('RIGHTPADDING', (0, 0), (-1, -1), 4),
         ('TOPPADDING', (0, 1), (-1, -1), 6),
