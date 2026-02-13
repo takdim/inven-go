@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
+from datetime import date
 from app import db
 from app.aset_tetap.forms import LaporanKerusakanPublicForm
 from app.models.aset_tetap import AsetTetap
@@ -15,24 +16,45 @@ def about():
     return render_template('about.html')
 
 
-@bp.route('/lapor-kerusakan', methods=['GET', 'POST'])
-def lapor_kerusakan_public():
-    form = LaporanKerusakanPublicForm()
-    form.aset_tetap_id.choices = [(0, '-- Pilih Aset --')] + [
+def _build_aset_choices():
+    return [(0, '-- Pilih Aset --')] + [
         (a.id, f'{a.kode_aset} - {a.nama_aset}')
         for a in AsetTetap.query.order_by(AsetTetap.kode_aset).all()
     ]
 
-    if request.method == 'GET' and not form.jumlah.data:
-        form.jumlah.data = 1
+
+@bp.route('/lapor-kerusakan', methods=['GET', 'POST'])
+@bp.route('/user/lapor-kerusakan', methods=['GET', 'POST'])
+def lapor_kerusakan_public():
+    form = LaporanKerusakanPublicForm()
+    form.aset_tetap_id.choices = _build_aset_choices()
+
+    if request.method == 'GET':
+        aset_id = request.args.get('aset_id', type=int)
+        if aset_id and any(choice_id == aset_id for choice_id, _ in form.aset_tetap_id.choices):
+            form.aset_tetap_id.data = aset_id
+
+        if not form.jumlah.data:
+            form.jumlah.data = 1
+        if not form.tanggal_diketahui_rusak.data:
+            form.tanggal_diketahui_rusak.data = date.today()
+
+    if len(form.aset_tetap_id.choices) <= 1:
+        flash('Belum ada data aset. Hubungi admin untuk menambahkan aset terlebih dahulu.', 'warning')
+        return render_template('laporan_kerusakan_public.html', form=form, title='Lapor Kerusakan Aset')
 
     if form.validate_on_submit():
         if form.aset_tetap_id.data == 0:
             flash('Pilih aset terlebih dahulu.', 'danger')
-            return render_template('laporan_kerusakan_public.html', form=form, title='Lapor Kerusakan')
+            return render_template('laporan_kerusakan_public.html', form=form, title='Lapor Kerusakan Aset')
+
+        aset = AsetTetap.query.get(form.aset_tetap_id.data)
+        if aset is None:
+            flash('Aset tidak ditemukan. Silakan pilih aset lain.', 'danger')
+            return render_template('laporan_kerusakan_public.html', form=form, title='Lapor Kerusakan Aset')
 
         laporan = LaporanKerusakan(
-            aset_tetap_id=form.aset_tetap_id.data,
+            aset_tetap_id=aset.id,
             pelapor_id=None,
             tanggal_diketahui_rusak=form.tanggal_diketahui_rusak.data,
             nama_pengguna=form.nama_pengguna.data,
@@ -51,4 +73,4 @@ def lapor_kerusakan_public():
         flash('Laporan kerusakan berhasil dikirim.', 'success')
         return redirect(url_for('main.lapor_kerusakan_public'))
 
-    return render_template('laporan_kerusakan_public.html', form=form, title='Lapor Kerusakan')
+    return render_template('laporan_kerusakan_public.html', form=form, title='Lapor Kerusakan Aset')

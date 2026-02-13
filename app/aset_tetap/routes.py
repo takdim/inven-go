@@ -12,6 +12,35 @@ from app import db
 from datetime import datetime
 import os
 
+
+def _resolve_unhas_logo_path():
+    """Resolve logo path for PDF letterhead with flexible fallback candidates."""
+    configured_path = current_app.config.get('UNHAS_LOGO_PATH')
+    candidates = []
+
+    if configured_path:
+        if os.path.isabs(configured_path):
+            candidates.append(configured_path)
+        else:
+            candidates.append(os.path.join(current_app.root_path, configured_path))
+
+    images_dir = os.path.join(current_app.root_path, 'static', 'images')
+    candidates.extend([
+        os.path.join(images_dir, 'logo_unhas.png'),
+        os.path.join(images_dir, 'logo_unhas.jpg'),
+        os.path.join(images_dir, 'logo_unhas.jpeg'),
+        os.path.join(images_dir, 'logo_institusi.png'),
+        os.path.join(images_dir, 'logo_institusi.jpg'),
+        os.path.join(images_dir, 'logo_institusi.jpeg'),
+    ])
+
+    for path in candidates:
+        if path and os.path.exists(path):
+            return path
+
+    return None
+
+
 @bp.route('/')
 @login_required
 def index():
@@ -242,16 +271,26 @@ def laporan_kerusakan_edit(id):
 def laporan_kerusakan_cetak_pdf(id):
     """Cetak laporan kerusakan ke PDF"""
     laporan = LaporanKerusakan.query.get_or_404(id)
-    logo_path = os.path.join(current_app.root_path, 'static', 'images', 'logo_institusi.png')
+    logo_path = _resolve_unhas_logo_path()
+    if not logo_path:
+        current_app.logger.warning(
+            'Logo UNHAS tidak ditemukan. PDF dicetak tanpa logo. '
+            'Atur UNHAS_LOGO_PATH atau simpan file di app/static/images/logo_unhas.png'
+        )
+
     buffer = export_laporan_kerusakan_to_pdf(laporan, logo_path=logo_path)
     filename = (
-        f"Surat_Laporan_Kerusakan_{laporan.aset_tetap.kode_aset}_"
-        f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        f"Surat_Laporan_Kerusakan_v2_{laporan.aset_tetap.kode_aset}_"
+        f"{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}.pdf"
     )
 
-    return send_file(
+    response = send_file(
         buffer,
         mimetype='application/pdf',
         as_attachment=True,
         download_name=filename
     )
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response

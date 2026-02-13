@@ -7,6 +7,7 @@ load_dotenv()
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
+    UNHAS_LOGO_PATH = os.environ.get('UNHAS_LOGO_PATH') or 'static/images/logo_unhas.png'
     
     # MySQL Database Configuration
     # IMPORTANT: Set these values in .env file for production!

@@ -1,10 +1,16 @@
 from flask import render_template, request, send_file, flash, redirect, url_for
 from flask_login import login_required
 from app.laporan import laporan_bp
-from app.laporan.forms import LaporanBarangForm, LaporanTransaksiForm, LaporanKontrakForm
+from app.laporan.forms import (
+    LaporanBarangForm,
+    LaporanTransaksiForm,
+    LaporanKontrakForm,
+    LaporanKerusakanFilterForm
+)
 from app.models import Barang, BarangMasuk, BarangKeluar, KontrakBarang, KategoriBarang, MerkBarang
 from app.models.aset_tetap import AsetTetap
 from app.models.merk_aset_tetap import MerkAsetTetap
+from app.models.laporan_kerusakan import LaporanKerusakan
 from app.utils.excel_export import export_barang_to_excel, export_kontrak_to_excel, export_transaksi_to_excel
 from app.utils.pdf_export import export_barang_to_pdf, export_kontrak_to_pdf, export_transaksi_to_pdf
 from datetime import datetime
@@ -510,6 +516,59 @@ def laporan_aset_tetap():
                           aset_list=aset_list)
 
 
+@laporan_bp.route('/kerusakan')
+@login_required
+def laporan_kerusakan():
+    """Laporan seluruh kerusakan aset tetap"""
+    form = LaporanKerusakanFilterForm()
+    form.aset_tetap_id.choices = [(0, 'Semua')] + [
+        (aset.id, f'{aset.kode_aset} - {aset.nama_aset}')
+        for aset in AsetTetap.query.order_by(AsetTetap.kode_aset).all()
+    ]
+
+    query = LaporanKerusakan.query
+
+    aset_tetap_id = request.args.get('aset_tetap_id', type=int)
+    if aset_tetap_id and aset_tetap_id > 0:
+        query = query.filter(LaporanKerusakan.aset_tetap_id == aset_tetap_id)
+        form.aset_tetap_id.data = aset_tetap_id
+
+    status = request.args.get('status', '', type=str)
+    if status in ('draft', 'terkirim', 'selesai'):
+        query = query.filter(LaporanKerusakan.status == status)
+        form.status.data = status
+
+    tanggal_awal_str = request.args.get('tanggal_awal', '', type=str)
+    if tanggal_awal_str:
+        try:
+            tanggal_awal = datetime.strptime(tanggal_awal_str, '%Y-%m-%d').date()
+            query = query.filter(LaporanKerusakan.tanggal_diketahui_rusak >= tanggal_awal)
+            form.tanggal_awal.data = tanggal_awal
+        except ValueError:
+            flash('Format Tanggal Awal tidak valid.', 'warning')
+
+    tanggal_akhir_str = request.args.get('tanggal_akhir', '', type=str)
+    if tanggal_akhir_str:
+        try:
+            tanggal_akhir = datetime.strptime(tanggal_akhir_str, '%Y-%m-%d').date()
+            query = query.filter(LaporanKerusakan.tanggal_diketahui_rusak <= tanggal_akhir)
+            form.tanggal_akhir.data = tanggal_akhir
+        except ValueError:
+            flash('Format Tanggal Akhir tidak valid.', 'warning')
+
+    laporan_list = query.order_by(
+        LaporanKerusakan.tanggal_diketahui_rusak.desc(),
+        LaporanKerusakan.created_at.desc()
+    ).all()
+
+    return render_template(
+        'laporan/kerusakan.html',
+        title='Laporan Kerusakan Aset Tetap',
+        form=form,
+        laporan_list=laporan_list
+    )
+
+
 @laporan_bp.route('/aset-tetap/export-excel')
 @login_required
 def export_aset_tetap_excel():
@@ -680,21 +739,10 @@ def export_aset_tetap_pdf():
         textColor=colors.whitesmoke,
     )
 
-    def make_breakable(value: str) -> str:
-        # Add zero-width spaces after separators so ReportLab can wrap strings
-        # that have no natural spaces (slashes, hyphens, underscores, etc.).
-        return (
-            value.replace('/', '/\u200b')
-            .replace('-', '-\u200b')
-            .replace('_', '_\u200b')
-        )
-
     def p(text, style):
         if text is None:
             text = '-'
         raw = str(text)
-        if len(raw) > 18 and any(sep in raw for sep in ['/', '-', '_']):
-            raw = make_breakable(raw)
         safe = escape(raw).replace('\n', '<br/>')
         return Paragraph(safe, style)
     

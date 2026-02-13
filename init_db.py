@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from app import create_app, db
+import app.models  # Ensure all models are imported and registered.
 from app.models import User, Barang, BarangMasuk, BarangKeluar, UserLog
 
 

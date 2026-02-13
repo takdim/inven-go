@@ -10,6 +10,90 @@ from datetime import datetime
 from io import BytesIO
 import os
 
+try:
+    from PIL import Image as PILImage
+except Exception:
+    PILImage = None
+
+
+def _build_logo_flowable(logo_path, width_cm=2.6, height_cm=2.6):
+    """Build a ReportLab Image flowable and normalize transparent PNGs."""
+    if not logo_path or not os.path.exists(logo_path):
+        return None
+
+    width = width_cm * cm
+    height = height_cm * cm
+
+    if PILImage is not None:
+        try:
+            with PILImage.open(logo_path) as pil_logo:
+                has_alpha = pil_logo.mode in ('RGBA', 'LA') or 'transparency' in pil_logo.info
+
+                if has_alpha:
+                    rgba_logo = pil_logo.convert('RGBA')
+                    white_bg = PILImage.new('RGB', rgba_logo.size, (255, 255, 255))
+                    white_bg.paste(rgba_logo, mask=rgba_logo.split()[-1])
+
+                    logo_buffer = BytesIO()
+                    white_bg.save(logo_buffer, format='PNG')
+                    logo_buffer.seek(0)
+
+                    logo = Image(logo_buffer, width=width, height=height)
+                    logo._source_buffer = logo_buffer
+                    return logo
+
+                if pil_logo.mode != 'RGB':
+                    rgb_logo = pil_logo.convert('RGB')
+                    logo_buffer = BytesIO()
+                    rgb_logo.save(logo_buffer, format='PNG')
+                    logo_buffer.seek(0)
+
+                    logo = Image(logo_buffer, width=width, height=height)
+                    logo._source_buffer = logo_buffer
+                    return logo
+        except Exception:
+            pass
+
+    return Image(logo_path, width=width, height=height)
+
+
+def _draw_logo_on_canvas(canvas, doc, logo_path, width_cm=2.6, height_cm=2.6):
+    """Draw logo at the left side of kop surat directly on canvas."""
+    if not logo_path or not os.path.exists(logo_path):
+        return
+
+    width = width_cm * cm
+    height = height_cm * cm
+    x_pos = doc.leftMargin
+    y_pos = A4[1] - doc.topMargin - height
+
+    if PILImage is not None:
+        try:
+            with PILImage.open(logo_path) as pil_logo_raw:
+                has_alpha = pil_logo_raw.mode in ('RGBA', 'LA') or 'transparency' in pil_logo_raw.info
+                if has_alpha:
+                    rgba_logo = pil_logo_raw.convert('RGBA')
+                    white_bg = PILImage.new('RGB', rgba_logo.size, (255, 255, 255))
+                    white_bg.paste(rgba_logo, mask=rgba_logo.split()[-1])
+                    render_logo = white_bg
+                else:
+                    render_logo = pil_logo_raw.convert('RGB')
+
+                canvas.drawInlineImage(render_logo, x_pos, y_pos, width=width, height=height)
+                return
+        except Exception:
+            pass
+
+    canvas.drawImage(
+        logo_path,
+        x_pos,
+        y_pos,
+        width=width,
+        height=height,
+        preserveAspectRatio=True,
+        mask='auto'
+    )
+
 
 class PDFExporter:
     """Class untuk generate PDF reports"""
@@ -272,30 +356,9 @@ def export_laporan_kerusakan_to_pdf(laporan, logo_path=None):
 
     elements = []
 
-    if logo_path and os.path.exists(logo_path):
-        logo = Image(logo_path, width=2.2*cm, height=2.2*cm)
-        header_text = "<br/>".join([
-            f"<b>{header_lines[0]}</b>",
-            f"<b>{header_lines[1]}</b>",
-            f"<b>{header_lines[2]}</b>",
-            f"<b>{header_lines[3]}</b>",
-            header_lines[4],
-            header_lines[5],
-            header_lines[6]
-        ])
-        header_table = Table([[logo, Paragraph(header_text, header_normal)]], colWidths=[2.6*cm, 13.4*cm])
-        header_table.setStyle(TableStyle([
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-            ('ALIGN', (1, 0), (1, -1), 'CENTER'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 0),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 0)
-        ]))
-        elements.append(header_table)
-    else:
-        for idx, line in enumerate(header_lines):
-            style = header_bold if idx <= 3 else header_normal
-            elements.append(Paragraph(line, style))
+    for idx, line in enumerate(header_lines):
+        style = header_bold if idx <= 3 else header_normal
+        elements.append(Paragraph(line, style))
 
     elements.append(Spacer(1, 0.2*cm))
     elements.append(HRFlowable(width="100%", thickness=1, color=colors.black))
@@ -364,7 +427,10 @@ def export_laporan_kerusakan_to_pdf(laporan, logo_path=None):
     pelapor_nama = laporan.pelapor.nama_lengkap if laporan.pelapor else "...................................."
     elements.append(Paragraph(f"({pelapor_nama})<br/>Petugas / Pelapor", body_style))
 
-    doc.build(elements)
+    def _on_first_page(canvas, doc_obj):
+        _draw_logo_on_canvas(canvas, doc_obj, logo_path, width_cm=2.6, height_cm=2.6)
+
+    doc.build(elements, onFirstPage=_on_first_page)
     buffer.seek(0)
     return buffer
 
@@ -426,9 +492,17 @@ def export_merk_aset_tetap_to_pdf(merk_list, filename=None):
     from reportlab.lib import colors
     from reportlab.lib.units import inch
     from io import BytesIO
+    from xml.sax.saxutils import escape
     
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter), topMargin=0.5*inch, bottomMargin=0.5*inch)
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=landscape(letter),
+        leftMargin=0.5*inch,
+        rightMargin=0.5*inch,
+        topMargin=0.5*inch,
+        bottomMargin=0.5*inch
+    )
     
     elements = []
     
@@ -458,49 +532,110 @@ def export_merk_aset_tetap_to_pdf(merk_list, filename=None):
         spaceAfter=12,
         alignment=0  # Left
     )
+    header_cell_style = ParagraphStyle(
+        'MerkHeaderCell',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=8,
+        leading=10,
+        textColor=colors.whitesmoke,
+        alignment=1
+    )
+    cell_left_style = ParagraphStyle(
+        'MerkCellLeft',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=8,
+        leading=10,
+        alignment=0,
+        wordWrap='LTR',
+        splitLongWords=1
+    )
+    cell_center_style = ParagraphStyle(
+        'MerkCellCenter',
+        parent=cell_left_style,
+        alignment=1
+    )
     
     # Title
     elements.append(Paragraph('LAPORAN DATA MERK ASET TETAP PERPUSTAKAAN UNIVERSITAS HASANUDDIN', title_style))
     elements.append(Paragraph(f'Per {datetime.now().strftime("%d %B %Y")}', subtitle_style))
     elements.append(Paragraph(f'Total Merk: <b>{len(merk_list)} item</b> | Dicetak pada: {datetime.now().strftime("%d/%m/%Y %H:%M")}', info_style))
     
+    def normalize_pdf_text(value):
+        if value is None:
+            return '-'
+
+        text = str(value)
+        replacements = {
+            '\u200b': '',   # zero-width space
+            '\ufeff': '',   # byte order mark
+            '\u00ad': '',   # soft hyphen
+            '™': '(TM)',
+            '®': '(R)',
+            '©': '(C)',
+            '–': '-',
+            '—': '-',
+            '“': '"',
+            '”': '"',
+            '‘': "'",
+            '’': "'",
+            '•': '-',
+            '\xa0': ' ',
+        }
+        for src, dst in replacements.items():
+            text = text.replace(src, dst)
+
+        # Avoid glyph issues with base PDF fonts.
+        text = ''.join(ch if ord(ch) <= 255 else '?' for ch in text)
+        return text.strip() or '-'
+
+    def truncate_pdf_text(value, max_len):
+        text = normalize_pdf_text(value).replace('\n', ' ')
+        text = ' '.join(text.split())
+        if len(text) > max_len:
+            return text[:max_len - 3] + '...'
+        return text
+
+    def p(text, style):
+        safe = escape(normalize_pdf_text(text)).replace('\n', ' ')
+        return Paragraph(safe, style)
+
     # Table data
-    table_data = [['No', 'Nama Merk', 'Tipe', 'Spesifikasi', 'Tanggal Pengadaan', 'Kontrak/SPK', 'Jumlah Aset']]
+    table_data = [[
+        p('No', header_cell_style),
+        p('Nama Merk', header_cell_style),
+        p('Tipe', header_cell_style),
+        p('Spesifikasi', header_cell_style),
+        p('Tanggal Pengadaan', header_cell_style),
+        p('Kontrak/SPK', header_cell_style),
+        p('Jumlah Aset', header_cell_style),
+    ]]
     
     for idx, merk in enumerate(merk_list, 1):
-        spesifikasi = merk.spesifikasi[:40] + '...' if merk.spesifikasi and len(merk.spesifikasi) > 40 else (merk.spesifikasi or '-')
-        
         table_data.append([
-            str(idx),
-            merk.nama_merk,
-            merk.tipe or '-',
-            spesifikasi,
-            merk.tanggal_pengadaan.strftime('%d/%m/%Y') if merk.tanggal_pengadaan else '-',
-            merk.nomor_kontrak or '-',
-            str(merk.get_total_aset_by_criteria())
+            p(idx, cell_center_style),
+            p(truncate_pdf_text(merk.nama_merk, 60), cell_left_style),
+            p(truncate_pdf_text(merk.tipe or '-', 60), cell_center_style),
+            p(truncate_pdf_text(merk.spesifikasi or '-', 160), cell_left_style),
+            p(merk.tanggal_pengadaan.strftime('%d/%m/%Y') if merk.tanggal_pengadaan else '-', cell_center_style),
+            p(truncate_pdf_text(merk.nomor_kontrak or '-', 80), cell_center_style),
+            p(merk.get_total_aset_by_criteria(), cell_center_style),
         ])
     
-    # Create table with optimized column widths for landscape
-    # Landscape letter is 11 inches wide, minus 1 inch for margins = 10 inches
-    # No: 0.35", Nama Merk: 1.1", Tipe: 0.9", Spesifikasi: 1.5", Tanggal: 1.0", Kontrak/SPK: 1.2", Jumlah Aset: 0.9"
-    table = Table(table_data, colWidths=[0.35*inch, 1.1*inch, 0.9*inch, 1.5*inch, 1.0*inch, 1.2*inch, 0.9*inch])
+    # Use nearly full printable width to avoid cramped columns.
+    table = Table(
+        table_data,
+        colWidths=[0.45*inch, 1.4*inch, 1.2*inch, 2.8*inch, 1.25*inch, 1.9*inch, 1.0*inch],
+        repeatRows=1
+    )
     
     table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#366092')),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (0, -1), 'CENTER'),
-        ('ALIGN', (1, 0), (1, -1), 'LEFT'),
-        ('ALIGN', (2, 0), (2, -1), 'CENTER'),
-        ('ALIGN', (3, 0), (3, -1), 'LEFT'),
-        ('ALIGN', (4, 0), (4, -1), 'CENTER'),
-        ('ALIGN', (5, 0), (5, -1), 'CENTER'),
-        ('ALIGN', (6, 0), (6, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 8),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
         ('TOPPADDING', (0, 0), (-1, 0), 8),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-        ('FONTSIZE', (0, 1), (-1, -1), 8),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f5f5')]),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -508,13 +643,6 @@ def export_merk_aset_tetap_to_pdf(merk_list, filename=None):
         ('TOPPADDING', (0, 1), (-1, -1), 6),
         ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
     ]))
-    
-    # Set row height for data rows to accommodate wrapped text
-    for i in range(len(table_data)):
-        if i == 0:  # Header row
-            table.setStyle(TableStyle([('MINHEIGHT', (0, 0), (-1, 0), 0.3*inch)]))
-        else:  # Data rows
-            table.setStyle(TableStyle([('MINHEIGHT', (0, i), (-1, i), 0.4*inch)]))
     
     elements.append(table)
     elements.append(Spacer(1, 0.3*inch))

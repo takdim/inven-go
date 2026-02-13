@@ -47,3 +47,17 @@ class LaporanAsetTetapForm(FlaskForm):
     kategori_id = SelectField('Kategori', coerce=int, validators=[Optional()])
     merk_aset_tetap_id = SelectField('Merk', coerce=int, validators=[Optional()])
     submit = SubmitField('Tampilkan')
+
+
+class LaporanKerusakanFilterForm(FlaskForm):
+    """Form filter laporan kerusakan aset tetap"""
+    aset_tetap_id = SelectField('Aset Tetap', coerce=int, validators=[Optional()])
+    status = SelectField('Status', choices=[
+        ('', 'Semua'),
+        ('draft', 'Draft'),
+        ('terkirim', 'Terkirim'),
+        ('selesai', 'Selesai')
+    ], validators=[Optional()])
+    tanggal_awal = DateField('Tanggal Awal', format='%Y-%m-%d', validators=[Optional()])
+    tanggal_akhir = DateField('Tanggal Akhir', format='%Y-%m-%d', validators=[Optional()])
+    submit = SubmitField('Tampilkan')

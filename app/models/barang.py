@@ -115,10 +115,16 @@ class Barang(db.Model):
         if rata_rata_per_hari > 0:
             hari_tersisa = int(stok_sekarang / rata_rata_per_hari)
             tanggal_habis = datetime.now() + timedelta(days=hari_tersisa)
+            rata_rata = round(rata_rata_per_hari, 2)
+            # Kembalikan beberapa nama key untuk kompatibilitas template/versi lama.
             return {
                 'hari_tersisa': hari_tersisa,
+                # Nama lama
                 'tanggal_habis': tanggal_habis,
-                'rata_rata_konsumsi': round(rata_rata_per_hari, 2)
+                'rata_rata_konsumsi': rata_rata,
+                # Nama yang dipakai di template (detail.html)
+                'estimasi_habis': tanggal_habis,
+                'rata_rata_per_hari': rata_rata,
             }
         
         return None

@@ -139,8 +139,8 @@
                 <li>
                   <a
                     class="dropdown-item"
-                    href="{{ url_for('laporan.laporan_kontrak') }}"
-                    ><i class="fas fa-file-contract"></i> Daftar Kontrak</a
+                    href="{{ url_for('laporan.laporan_kerusakan') }}"
+                    ><i class="fas fa-tools text-success"></i> Laporan Kerusakan</a
                   >
                 </li>
                 <li><hr class="dropdown-divider" /></li>
@@ -203,7 +203,7 @@
     {% if current_user.is_authenticated %}
     <footer class="bg-light text-center text-muted py-3 mt-5">
       <div class="container">
-        <small>&copy; 2025 Inven-Go. All rights reserved.</small>
+        <small>&copy; 2026 Inven-Go. All rights reserved powered by Kagami & DIMS.</small>
       </div>
     </footer>
     {% endif %}

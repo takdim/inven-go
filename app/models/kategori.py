@@ -1,5 +1,6 @@
 from app import db
 from datetime import datetime
+from sqlalchemy import func
 
 class KategoriBarang(db.Model):
     __tablename__ = 'kategori_barang'
@@ -17,8 +18,33 @@ class KategoriBarang(db.Model):
         return f'<KategoriBarang {self.nama_kategori}>'
     
     def get_total_item(self):
-        """Get total jumlah barang dalam kategori ini"""
+        """Get total jumlah barang gabungan dari master barang dan aset tetap."""
+        from app.models.aset_tetap import AsetTetap
+
+        total_barang_master = self.barang.count()
+        total_barang_aset_tetap = db.session.query(
+            func.coalesce(func.sum(AsetTetap.total_barang), 0)
+        ).filter(
+            AsetTetap.kategori_id == self.id
+        ).scalar() or 0
+
+        return total_barang_master + int(total_barang_aset_tetap)
+
+    def get_total_barang_master(self):
+        """Get total item dari tabel master barang."""
         return self.barang.count()
+
+    def get_total_barang_aset_tetap(self):
+        """Get total jumlah barang dari tabel aset tetap."""
+        from app.models.aset_tetap import AsetTetap
+
+        total = db.session.query(
+            func.coalesce(func.sum(AsetTetap.total_barang), 0)
+        ).filter(
+            AsetTetap.kategori_id == self.id
+        ).scalar()
+
+        return int(total or 0)
     
     def to_dict(self):
         return {

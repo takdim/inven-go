@@ -2,6 +2,7 @@ from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required
 from app.kategori import bp
 from app.models.kategori import KategoriBarang
+from app.models.aset_tetap import AsetTetap
 from app.kategori.forms import KategoriForm
 from app import db
 
@@ -74,9 +75,11 @@ def edit(id):
 def hapus(id):
     kategori = KategoriBarang.query.get_or_404(id)
     
-    # Cek apakah kategori digunakan oleh barang
-    if kategori.barang.count() > 0:
-        flash('Kategori tidak dapat dihapus karena masih digunakan oleh barang!', 'danger')
+    # Cek apakah kategori digunakan oleh barang atau aset tetap
+    is_used_by_barang = kategori.barang.count() > 0
+    is_used_by_aset_tetap = AsetTetap.query.filter_by(kategori_id=kategori.id).count() > 0
+    if is_used_by_barang or is_used_by_aset_tetap:
+        flash('Kategori tidak dapat dihapus karena masih digunakan oleh barang/aset tetap!', 'danger')
         return redirect(url_for('kategori.index'))
     
     db.session.delete(kategori)

@@ -162,6 +162,31 @@ CREATE TABLE users (
     INDEX idx_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Tabel Laporan Kerusakan Aset Tetap
+CREATE TABLE laporan_kerusakan (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    aset_tetap_id INT NOT NULL,
+    pelapor_id INT NULL,
+    tanggal_diketahui_rusak DATE NOT NULL,
+    nama_pengguna VARCHAR(255) NOT NULL,
+    lokasi VARCHAR(255) NOT NULL,
+    jumlah INT NOT NULL DEFAULT 1,
+    jenis_kerusakan TEXT NOT NULL,
+    penyebab TEXT,
+    tindakan TEXT,
+    kondisi_saat_ini TEXT,
+    dampak TEXT,
+    status ENUM('draft', 'terkirim', 'selesai') NOT NULL DEFAULT 'draft',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (aset_tetap_id) REFERENCES aset_tetap(id) ON DELETE CASCADE,
+    FOREIGN KEY (pelapor_id) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_laporan_kerusakan_aset_tetap_id (aset_tetap_id),
+    INDEX idx_laporan_kerusakan_pelapor_id (pelapor_id),
+    INDEX idx_laporan_kerusakan_status (status),
+    INDEX idx_laporan_kerusakan_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Tabel untuk Log Aktivitas User (Opsional, untuk audit trail)
 CREATE TABLE user_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
