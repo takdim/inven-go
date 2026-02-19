@@ -67,7 +67,7 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                 {{ form.kontrak_spk.label(class="form-label fw-bold") }}
-                {{ form.kontrak_spk(class="form-select") }}
+                {{ form.kontrak_spk(class="form-control", placeholder="Isi nomor kontrak/SPK secara manual") }}
                 {% if form.kontrak_spk.errors %}
                 <div class="text-danger small mt-1">
                   {% for error in form.kontrak_spk.errors %}
@@ -126,6 +126,20 @@
               form.total_barang.errors %}
               <div class="text-danger small mt-1">
                 {% for error in form.total_barang.errors %}
+                <div>
+                  <i class="fas fa-exclamation-circle"></i> {{ error }}
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.spesifikasi.label(class="form-label fw-bold") }} {{
+              form.spesifikasi(class="form-control", rows="4", placeholder="Spesifikasi / detail teknis (opsional)") }}
+              {% if form.spesifikasi.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.spesifikasi.errors %}
                 <div>
                   <i class="fas fa-exclamation-circle"></i> {{ error }}
                 </div>

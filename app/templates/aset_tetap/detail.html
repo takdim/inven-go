@@ -26,7 +26,7 @@
             </div>
           </div>
 
-          <!-- Kategori dan Merk -->
+          <!-- Kategori dan Jenis Aset -->
           <div class="row mb-3">
             <div class="col-md-6">
               <strong>Kategori:</strong>
@@ -39,10 +39,10 @@
               </p>
             </div>
             <div class="col-md-6">
-              <strong>Merk Aset Tetap:</strong>
+              <strong>Jenis Aset:</strong>
               <p>
                 {% if aset.merk_aset_tetap %}
-                <span class="badge bg-warning">{{ aset.merk_aset_tetap.nama_merk }} ({{ aset.merk_aset_tetap.tipe }})</span>
+                <span class="badge bg-warning">{{ aset.merk_aset_tetap.nama_merk }}</span>
                 {% else %}
                 <span class="text-muted">-</span>
                 {% endif %}
@@ -71,6 +71,20 @@
             <div class="col-md-6">
               <strong>Nama Pengguna:</strong>
               <p>{{ aset.nama_pengguna if aset.nama_pengguna else '-' }}</p>
+            </div>
+          </div>
+
+          <!-- Spesifikasi -->
+          <div class="row mb-3">
+            <div class="col-12">
+              <strong>Spesifikasi:</strong>
+              <p>
+                {% if aset.spesifikasi %}
+                {{ aset.spesifikasi.replace('\n', '<br>')|safe }}
+                {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+              </p>
             </div>
           </div>
 

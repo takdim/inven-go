@@ -82,10 +82,7 @@ def tambah():
     form.kategori_id.choices = [(0, '-- Pilih Kategori --')] + [(k.id, k.nama_kategori) for k in KategoriBarang.query.order_by(KategoriBarang.nama_kategori).all()]
     
     # Populate merk_aset_tetap choices
-    form.merk_aset_tetap_id.choices = [(0, '-- Pilih Merk --')] + [(m.id, f'{m.nama_merk} ({m.tipe})') for m in MerkAsetTetap.query.order_by(MerkAsetTetap.nama_merk).all()]
-    
-    # Populate kontrak_spk choices from MerkAsetTetap
-    form.kontrak_spk.choices = [('', '-- Pilih Kontrak/SPK --')] + [(m.nomor_kontrak, f'{m.nomor_kontrak} ({m.nama_merk} - {m.tipe})') for m in MerkAsetTetap.query.filter(MerkAsetTetap.nomor_kontrak.isnot(None)).order_by(MerkAsetTetap.nomor_kontrak).all()]
+    form.merk_aset_tetap_id.choices = [(0, '-- Pilih Jenis Aset --')] + [(m.id, m.nama_merk) for m in MerkAsetTetap.query.order_by(MerkAsetTetap.nama_merk).all()]
     
     if form.validate_on_submit():
         # Check if kode_aset already exists
@@ -102,7 +99,8 @@ def tambah():
             kontrak_spk=form.kontrak_spk.data,
             tempat_penggunaan=form.tempat_penggunaan.data,
             nama_pengguna=form.nama_pengguna.data,
-            total_barang=form.total_barang.data if form.total_barang.data else 0
+            total_barang=form.total_barang.data if form.total_barang.data else 0,
+            spesifikasi=form.spesifikasi.data
         )
         
         db.session.add(aset)
@@ -135,10 +133,7 @@ def edit(id):
     form.kategori_id.choices = [(0, '-- Pilih Kategori --')] + [(k.id, k.nama_kategori) for k in KategoriBarang.query.order_by(KategoriBarang.nama_kategori).all()]
     
     # Populate merk_aset_tetap choices
-    form.merk_aset_tetap_id.choices = [(0, '-- Pilih Merk --')] + [(m.id, f'{m.nama_merk} ({m.tipe})') for m in MerkAsetTetap.query.order_by(MerkAsetTetap.nama_merk).all()]
-    
-    # Populate kontrak_spk choices from MerkAsetTetap
-    form.kontrak_spk.choices = [('', '-- Pilih Kontrak/SPK --')] + [(m.nomor_kontrak, f'{m.nomor_kontrak} ({m.nama_merk} - {m.tipe})') for m in MerkAsetTetap.query.filter(MerkAsetTetap.nomor_kontrak.isnot(None)).order_by(MerkAsetTetap.nomor_kontrak).all()]
+    form.merk_aset_tetap_id.choices = [(0, '-- Pilih Jenis Aset --')] + [(m.id, m.nama_merk) for m in MerkAsetTetap.query.order_by(MerkAsetTetap.nama_merk).all()]
     
     if form.validate_on_submit():
         aset.kode_aset = form.kode_aset.data
@@ -150,6 +145,7 @@ def edit(id):
         aset.tempat_penggunaan = form.tempat_penggunaan.data
         aset.nama_pengguna = form.nama_pengguna.data
         aset.total_barang = form.total_barang.data if form.total_barang.data else 0
+        aset.spesifikasi = form.spesifikasi.data
         
         db.session.commit()
         

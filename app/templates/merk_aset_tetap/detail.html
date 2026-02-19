@@ -6,14 +6,14 @@
   <!-- Breadcrumb -->
   <div class="row mb-4">
     <div class="col-12">
-      <h2 class="mb-0"><i class="fas fa-tag"></i> Detail Merk Aset Tetap</h2>
+      <h2 class="mb-0"><i class="fas fa-tag"></i> Detail Jenis Aset</h2>
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item">
             <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{{ url_for('merk_aset_tetap.index') }}">Data Merk Aset Tetap</a>
+            <a href="{{ url_for('merk_aset_tetap.index') }}">Data Jenis Aset</a>
           </li>
           <li class="breadcrumb-item active">{{ merk.nama_merk }}</li>
         </ol>
@@ -36,7 +36,7 @@
     <div class="col-lg-8">
       <div class="card shadow-sm">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-          <h5 class="mb-0"><i class="fas fa-tag"></i> Informasi Merk</h5>
+          <h5 class="mb-0"><i class="fas fa-tag"></i> Informasi Jenis Aset</h5>
           <div>
             <a href="{{ url_for('merk_aset_tetap.edit', id=merk.id) }}" class="btn btn-sm btn-warning">
               <i class="fas fa-edit"></i> Edit
@@ -50,7 +50,7 @@
         <div class="card-body">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="text-muted small mb-1">Nama Merk</label>
+              <label class="text-muted small mb-1">Jenis Aset</label>
               <div class="fw-bold fs-5">{{ merk.nama_merk }}</div>
             </div>
 
@@ -118,7 +118,7 @@
               method="POST"
               action="{{ url_for('merk_aset_tetap.hapus', id=merk.id) }}"
               style="display: inline"
-              onsubmit="return confirm('Apakah Anda yakin ingin menghapus merk ini?')"
+              onsubmit="return confirm('Apakah Anda yakin ingin menghapus jenis aset ini?')"
             >
               <button
                 type="submit"
@@ -133,7 +133,7 @@
 
           {% if aset_total > 0 %}
           <small class="text-muted d-block mt-2">
-            <i class="fas fa-info-circle"></i> Merk tidak dapat dihapus karena masih digunakan oleh aset.
+            <i class="fas fa-info-circle"></i> Jenis aset tidak dapat dihapus karena masih digunakan oleh aset.
           </small>
           {% endif %}
         </div>
@@ -169,7 +169,7 @@
       <div class="card shadow-sm">
         <div class="card-header bg-success text-white">
           <h5 class="mb-0">
-            <i class="fas fa-archive"></i> Aset dengan Merk Ini
+            <i class="fas fa-archive"></i> Aset dengan Jenis Ini
             <span class="badge bg-light text-success">{{ aset_total }}</span>
           </h5>
         </div>
@@ -231,7 +231,7 @@
           {% else %}
           <div class="text-center py-4 text-muted">
             <i class="fas fa-inbox fa-3x mb-3"></i>
-            <div>Belum ada aset yang menggunakan merk ini</div>
+            <div>Belum ada aset yang menggunakan jenis aset ini</div>
           </div>
           {% endif %}
         </div>

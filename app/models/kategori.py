@@ -46,6 +46,13 @@ class KategoriBarang(db.Model):
 
         return int(total or 0)
     
+    def get_total_stok_akhir(self):
+        """Get total stok akhir dari semua barang dengan kategori ini"""
+        total = 0
+        for barang in self.barang.all():
+            total += barang.get_stok_akhir()
+        return total
+    
     def to_dict(self):
         return {
             'id': self.id,
@@ -77,6 +84,13 @@ class MerkBarang(db.Model):
         """Get total jumlah barang dengan merk ini"""
         return self.barang.count()
     
+    def get_total_stok_akhir(self):
+        """Get total stok akhir (final stock) dari semua barang dengan merk ini"""
+        total = 0
+        for barang in self.barang.all():
+            total += barang.get_stok_akhir()
+        return total
+    
     def to_dict(self):
         return {
             'id': self.id,
@@ -85,5 +99,6 @@ class MerkBarang(db.Model):
             'tanggal_pengadaan': self.tanggal_pengadaan.isoformat() if self.tanggal_pengadaan else None,
             'nomor_kontrak': self.nomor_kontrak,
             'spesifikasi': self.spesifikasi,
-            'jumlah_barang': self.get_total_item()
+            'jumlah_item': self.get_total_item(),
+            'total_stok_akhir': self.get_total_stok_akhir()
         }

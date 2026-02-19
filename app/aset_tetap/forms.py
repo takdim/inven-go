@@ -2,7 +2,6 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, SubmitField, SelectField, TextAreaField, DateField
 from wtforms.validators import DataRequired, Length, ValidationError, Optional, NumberRange
 from app.models.aset_tetap import AsetTetap
-from app.models.merk_aset_tetap import MerkAsetTetap
 
 class AsetTetapForm(FlaskForm):
     kode_aset = StringField('Kode Aset', validators=[
@@ -15,9 +14,12 @@ class AsetTetapForm(FlaskForm):
     ])
     
     kategori_id = SelectField('Kategori', coerce=int, validators=[Optional()])
-    merk_aset_tetap_id = SelectField('Merk (Aset Tetap)', coerce=int, validators=[Optional()])
+    merk_aset_tetap_id = SelectField('Jenis Aset', coerce=int, validators=[Optional()])
     tanggal_kontrak = DateField('Tanggal Kontrak/SPK', validators=[Optional()])
-    kontrak_spk = SelectField('Kontrak/SPK (dari Merk Aset Tetap)', coerce=str, validators=[Optional()])
+    kontrak_spk = StringField('Kontrak/SPK', validators=[
+        Optional(),
+        Length(max=200, message='Kontrak/SPK maksimal 200 karakter')
+    ])
     tempat_penggunaan = StringField('Tempat Penggunaan', validators=[
         Optional(),
         Length(max=255, message='Tempat penggunaan maksimal 255 karakter')
@@ -29,6 +31,10 @@ class AsetTetapForm(FlaskForm):
     total_barang = IntegerField('Total Barang', validators=[
         Optional(),
         NumberRange(min=0, message='Total barang minimal 0')
+    ])
+    spesifikasi = TextAreaField('Spesifikasi', validators=[
+        Optional(),
+        Length(max=2000, message='Spesifikasi maksimal 2000 karakter')
     ])
     submit = SubmitField('Simpan')
     

@@ -8,11 +8,8 @@
       <h2><i class="fas fa-tag"></i> {{ title }}</h2>
     </div>
     <div class="col-md-6 text-end">
-      <a href="{{ url_for('merk_aset_tetap.cetak_laporan', search=search) }}" class="btn btn-danger me-2" target="_blank">
-        <i class="fas fa-file-pdf"></i> Cetak Laporan
-      </a>
       <a href="{{ url_for('merk_aset_tetap.tambah') }}" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Tambah Merk & Tipe Pertama
+        <i class="fas fa-plus"></i> Tambah Jenis Aset
       </a>
     </div>
   </div>
@@ -26,7 +23,7 @@
             type="text"
             name="search"
             class="form-control"
-            placeholder="Cari merk atau tipe..."
+            placeholder="Cari jenis aset..."
             value="{{ search }}"
           />
           <button class="btn btn-outline-secondary" type="submit">
@@ -65,11 +62,7 @@
           <thead class="table-light">
             <tr>
               <th>No</th>
-              <th>Nama Merk</th>
-              <th>Tipe</th>
-              <th>Spesifikasi</th>
-              <th>Tanggal Pengadaan</th>
-              <th>Kontrak/SPK</th>
+              <th>Jenis Aset</th>
               <th>Jumlah Barang</th>
               <th class="text-center">Aksi</th>
             </tr>
@@ -80,26 +73,10 @@
             <tr>
               <td>{{ loop.index + (pagination.page - 1) * pagination.per_page }}</td>
               <td>
-                <a
-                  href="{{ url_for('merk_aset_tetap.detail', id=merk.id) }}"
-                  class="text-decoration-none"
-                  title="Lihat Detail"
-                >
-                  <strong>{{ merk.nama_merk }}</strong>
-                </a>
-              </td>
-              <td><strong>{{ merk.tipe or '-' }}</strong></td>
-              <td>
-                {% if merk.spesifikasi %}{{ merk.spesifikasi[:50] }}{% if merk.spesifikasi|length > 50 %}...{% endif %}{% else %}<span class="text-muted">-</span>{% endif %}
+                <strong>{{ merk.nama_merk }}</strong>
               </td>
               <td>
-                <small class="text-muted">{{ merk.tanggal_pengadaan.strftime('%d %b %Y') if merk.tanggal_pengadaan else '-' }}</small>
-              </td>
-              <td>
-                <span class="badge bg-secondary">{{ merk.nomor_kontrak if merk.nomor_kontrak else '-' }}</span>
-              </td>
-              <td>
-                <span class="badge bg-info">{{ merk.get_total_aset_by_criteria() }} barang</span>
+                <span class="badge bg-info">{{ merk.get_total_barang() }} barang</span>
               </td>
               <td class="text-center">
                 <a
@@ -112,7 +89,7 @@
                 <a href="{{ url_for('merk_aset_tetap.edit', id=merk.id) }}" class="btn btn-sm btn-warning" title="Edit">
                   <i class="fas fa-edit"></i>
                 </a>
-                <form method="POST" action="{{ url_for('merk_aset_tetap.hapus', id=merk.id) }}" style="display: inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus merk ini?')">
+                <form method="POST" action="{{ url_for('merk_aset_tetap.hapus', id=merk.id) }}" style="display: inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jenis aset ini?')">
                   <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
                     <i class="fas fa-trash"></i>
                   </button>
@@ -121,11 +98,11 @@
             </tr>
             {% endfor %} {% else %}
             <tr>
-              <td colspan="8" class="text-center text-muted py-4">
+              <td colspan="4" class="text-center text-muted py-4">
                 <i class="fas fa-inbox fa-3x mb-3"></i>
-                <p>Belum ada data merk</p>
+                <p>Belum ada data jenis aset</p>
                 <a href="{{ url_for('merk_aset_tetap.tambah') }}" class="btn btn-primary">
-                  <i class="fas fa-plus"></i> Tambah Merk & Tipe Pertama
+                  <i class="fas fa-plus"></i> Tambah Jenis Aset
                 </a>
               </td>
             </tr>

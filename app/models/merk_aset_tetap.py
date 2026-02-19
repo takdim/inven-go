@@ -1,5 +1,6 @@
 from app import db
 from datetime import datetime
+from sqlalchemy import func
 
 class MerkAsetTetap(db.Model):
     __tablename__ = 'merk_aset_tetap'
@@ -40,6 +41,16 @@ class MerkAsetTetap(db.Model):
         ).scalar()
         
         return total if total else 0
+
+    def get_total_barang(self):
+        """Return sum of `total_barang` from AsetTetap for this merk."""
+        from app.models.aset_tetap import AsetTetap
+
+        total = db.session.query(func.sum(AsetTetap.total_barang)).filter(
+            AsetTetap.merk_aset_tetap_id == self.id
+        ).scalar()
+
+        return int(total or 0)
     
     def to_dict(self):
         return {
@@ -50,6 +61,7 @@ class MerkAsetTetap(db.Model):
             'nomor_kontrak': self.nomor_kontrak,
             'spesifikasi': self.spesifikasi,
             'jumlah_aset': self.get_total_aset(),
+            'jumlah_barang': self.get_total_barang(),
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }

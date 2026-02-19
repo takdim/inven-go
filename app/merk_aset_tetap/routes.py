@@ -1,11 +1,9 @@
-from flask import render_template, redirect, url_for, flash, request, send_file
+from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required
 from app.merk_aset_tetap import bp
 from app.models.merk_aset_tetap import MerkAsetTetap
 from app.merk_aset_tetap.forms import MerkAsetTetapForm
-from app.utils.pdf_export import export_merk_aset_tetap_to_pdf
 from app import db
-from datetime import datetime
 from sqlalchemy import func
 
 @bp.route('/')
@@ -29,7 +27,7 @@ def index():
     merk_list = pagination.items
     
     return render_template('merk_aset_tetap/index.html',
-                         title='Data Merk Aset Tetap',
+                         title='Data Jenis Aset',
                          merk_list=merk_list,
                          pagination=pagination,
                          search=search)
@@ -43,21 +41,22 @@ def tambah():
     if form.validate_on_submit():
         merk = MerkAsetTetap(
             nama_merk=form.nama_merk.data,
-            tipe=form.tipe.data,
-            tanggal_pengadaan=form.tanggal_pengadaan.data,
-            nomor_kontrak=form.nomor_kontrak.data,
+            tipe=None,
+            tanggal_pengadaan=None,
+            nomor_kontrak=None,
             spesifikasi=form.spesifikasi.data
         )
         
         db.session.add(merk)
         db.session.commit()
         
-        flash('Merk Aset Tetap berhasil ditambahkan!', 'success')
+        flash('Jenis Aset berhasil ditambahkan!', 'success')
         return redirect(url_for('merk_aset_tetap.index'))
     
     return render_template('merk_aset_tetap/form.html',
-                         title='Tambah Merk Aset Tetap',
-                         form=form)
+                         title='Tambah Jenis Aset',
+                         form=form,
+                         is_edit=False)
 
 @bp.route('/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -69,27 +68,24 @@ def edit(id):
     
     if form.validate_on_submit():
         merk.nama_merk = form.nama_merk.data
-        merk.tipe = form.tipe.data
-        merk.tanggal_pengadaan = form.tanggal_pengadaan.data
-        merk.nomor_kontrak = form.nomor_kontrak.data
         merk.spesifikasi = form.spesifikasi.data
         
         db.session.commit()
         
-        flash('Merk Aset Tetap berhasil diupdate!', 'success')
+        flash('Jenis Aset berhasil diupdate!', 'success')
         return redirect(url_for('merk_aset_tetap.index'))
     
     elif request.method == 'GET':
         form.nama_merk.data = merk.nama_merk
         form.tipe.data = merk.tipe
-        form.tanggal_pengadaan.data = merk.tanggal_pengadaan
         form.nomor_kontrak.data = merk.nomor_kontrak
         form.spesifikasi.data = merk.spesifikasi
     
     return render_template('merk_aset_tetap/form.html',
-                         title='Edit Merk Aset Tetap',
+                         title='Edit Jenis Aset',
                          form=form,
-                         merk=merk)
+                         merk=merk,
+                         is_edit=True)
 
 @bp.route('/<int:id>/hapus', methods=['POST'])
 @login_required
@@ -99,13 +95,13 @@ def hapus(id):
     
     # Cek apakah merk digunakan oleh aset
     if merk.get_total_aset() > 0:
-        flash(f'Merk Aset Tetap tidak dapat dihapus karena masih digunakan oleh {merk.get_total_aset()} aset!', 'danger')
+        flash(f'Jenis Aset tidak dapat dihapus karena masih digunakan oleh {merk.get_total_aset()} aset!', 'danger')
         return redirect(url_for('merk_aset_tetap.index'))
     
     db.session.delete(merk)
     db.session.commit()
     
-    flash('Merk Aset Tetap berhasil dihapus!', 'success')
+    flash('Jenis Aset berhasil dihapus!', 'success')
     return redirect(url_for('merk_aset_tetap.index'))
 
 
@@ -136,7 +132,7 @@ def detail(id):
 
     return render_template(
         'merk_aset_tetap/detail.html',
-        title=f'Detail Merk Aset Tetap {merk.nama_merk}',
+        title=f'Detail Jenis Aset {merk.nama_merk}',
         merk=merk,
         aset_total=aset_total,
         total_barang_all=total_barang_all,
@@ -167,5 +163,5 @@ def cetak_laporan():
         pdf_data,
         mimetype='application/pdf',
         as_attachment=True,
-        download_name=f'Laporan_Merk_Aset_Tetap_{datetime.now().strftime("%d%m%Y_%H%M%S")}.pdf'
+        download_name=f'Laporan_Jenis_Aset_{datetime.now().strftime("%d%m%Y_%H%M%S")}.pdf'
     )

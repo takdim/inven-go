@@ -4,9 +4,9 @@ from wtforms.validators import DataRequired, Length, ValidationError, Optional
 from app.models.merk_aset_tetap import MerkAsetTetap
 
 class MerkAsetTetapForm(FlaskForm):
-    nama_merk = StringField('Nama Merk', validators=[
-        DataRequired(message='Nama merk tidak boleh kosong'),
-        Length(min=2, max=100, message='Nama merk harus antara 2-100 karakter')
+    nama_merk = StringField('Jenis Aset', validators=[
+        DataRequired(message='Jenis aset tidak boleh kosong'),
+        Length(min=2, max=100, message='Jenis aset harus antara 2-100 karakter')
     ])
     
     tipe = StringField('Tipe', validators=[
@@ -39,4 +39,4 @@ class MerkAsetTetapForm(FlaskForm):
             existing = MerkAsetTetap.query.filter_by(nama_merk=field.data).first()
         
         if existing:
-            raise ValidationError('Nama merk sudah digunakan.')
+            raise ValidationError('Jenis aset sudah digunakan.')

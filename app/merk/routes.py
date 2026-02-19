@@ -56,7 +56,7 @@ def tambah():
 @login_required
 def edit(id):
     merk = MerkBarang.query.get_or_404(id)
-    form = MerkForm(obj=merk)
+    form = MerkForm(original_nama_merk=merk.nama_merk, obj=merk)
     
     if form.validate_on_submit():
         merk.nama_merk = form.nama_merk.data
@@ -97,10 +97,10 @@ def detail(id):
 
     from app.models.barang import Barang
 
-    barang_total = merk.barang.count()
+    barang_total = merk.get_total_stok_akhir()
     barang_list = (
         merk.barang.order_by(Barang.created_at.desc()).limit(20).all()
-        if barang_total > 0
+        if merk.barang.count() > 0
         else []
     )
 

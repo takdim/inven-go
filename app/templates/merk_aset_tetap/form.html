@@ -20,7 +20,7 @@
 
         <div class="mb-3">
           <label for="nama_merk" class="form-label"
-            >Nama Merk <span class="text-danger">*</span></label
+            >Jenis Aset <span class="text-danger">*</span></label
           >
           {% if form.nama_merk.errors %}
           <input
@@ -46,88 +46,7 @@
             required
           />
           {% endif %}
-          <small class="form-text text-muted">Contoh: Samsung, LG, Canon, dll</small>
-        </div>
-
-        <div class="mb-3">
-          <label for="tipe" class="form-label">Tipe</label>
-          {% if form.tipe.errors %}
-          <input
-            type="text"
-            class="form-control is-invalid"
-            id="tipe"
-            name="tipe"
-            value="{{ form.tipe.data or '' }}"
-          />
-          <div class="invalid-feedback d-block">
-            {% for error in form.tipe.errors %}
-            <i class="fas fa-exclamation-circle"></i> {{ error }}<br />
-            {% endfor %}
-          </div>
-          {% else %}
-          <input
-            type="text"
-            class="form-control"
-            id="tipe"
-            name="tipe"
-            value="{{ form.tipe.data or '' }}"
-          />
-          {% endif %}
-          <small class="form-text text-muted">Contoh: LCD, DSLR, Laser, dll</small>
-        </div>
-
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label for="tanggal_pengadaan" class="form-label">Tanggal Pengadaan</label>
-            {% if form.tanggal_pengadaan.errors %}
-            <input
-              type="date"
-              class="form-control is-invalid"
-              id="tanggal_pengadaan"
-              name="tanggal_pengadaan"
-              value="{{ form.tanggal_pengadaan.data.isoformat() if form.tanggal_pengadaan.data else '' }}"
-            />
-            <div class="invalid-feedback d-block">
-              {% for error in form.tanggal_pengadaan.errors %}
-              <i class="fas fa-exclamation-circle"></i> {{ error }}<br />
-              {% endfor %}
-            </div>
-            {% else %}
-            <input
-              type="date"
-              class="form-control"
-              id="tanggal_pengadaan"
-              name="tanggal_pengadaan"
-              value="{{ form.tanggal_pengadaan.data.isoformat() if form.tanggal_pengadaan.data else '' }}"
-            />
-            {% endif %}
-          </div>
-
-          <div class="col-md-6 mb-3">
-            <label for="nomor_kontrak" class="form-label">Nomor Kontrak</label>
-            {% if form.nomor_kontrak.errors %}
-            <input
-              type="text"
-              class="form-control is-invalid"
-              id="nomor_kontrak"
-              name="nomor_kontrak"
-              value="{{ form.nomor_kontrak.data or '' }}"
-            />
-            <div class="invalid-feedback d-block">
-              {% for error in form.nomor_kontrak.errors %}
-              <i class="fas fa-exclamation-circle"></i> {{ error }}<br />
-              {% endfor %}
-            </div>
-            {% else %}
-            <input
-              type="text"
-              class="form-control"
-              id="nomor_kontrak"
-              name="nomor_kontrak"
-              value="{{ form.nomor_kontrak.data or '' }}"
-            />
-            {% endif %}
-          </div>
+          <small class="form-text text-muted">Contoh: Laptop, Printer, Scanner, dll</small>
         </div>
 
         <div class="mb-3">
@@ -153,7 +72,7 @@
           >{{ form.spesifikasi.data or '' }}</textarea>
           {% endif %}
           <small class="form-text text-muted"
-            >Informasi spesifikasi teknis merk</small
+            >Informasi spesifikasi teknis jenis aset</small
           >
         </div>
 

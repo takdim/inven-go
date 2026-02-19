@@ -485,7 +485,7 @@ def export_transaksi_to_pdf(transaksi_list, jenis, tanggal_awal=None, tanggal_ak
 
 
 def export_merk_aset_tetap_to_pdf(merk_list, filename=None):
-    """Export daftar merk aset tetap ke PDF"""
+    """Export daftar jenis aset ke PDF"""
     from reportlab.lib.pagesizes import landscape, letter
     from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -558,9 +558,9 @@ def export_merk_aset_tetap_to_pdf(merk_list, filename=None):
     )
     
     # Title
-    elements.append(Paragraph('LAPORAN DATA MERK ASET TETAP PERPUSTAKAAN UNIVERSITAS HASANUDDIN', title_style))
+    elements.append(Paragraph('LAPORAN DATA JENIS ASET PERPUSTAKAAN UNIVERSITAS HASANUDDIN', title_style))
     elements.append(Paragraph(f'Per {datetime.now().strftime("%d %B %Y")}', subtitle_style))
-    elements.append(Paragraph(f'Total Merk: <b>{len(merk_list)} item</b> | Dicetak pada: {datetime.now().strftime("%d/%m/%Y %H:%M")}', info_style))
+    elements.append(Paragraph(f'Total Jenis Aset: <b>{len(merk_list)} item</b> | Dicetak pada: {datetime.now().strftime("%d/%m/%Y %H:%M")}', info_style))
     
     def normalize_pdf_text(value):
         if value is None:
@@ -604,7 +604,7 @@ def export_merk_aset_tetap_to_pdf(merk_list, filename=None):
     # Table data
     table_data = [[
         p('No', header_cell_style),
-        p('Nama Merk', header_cell_style),
+        p('Jenis Aset', header_cell_style),
         p('Tipe', header_cell_style),
         p('Spesifikasi', header_cell_style),
         p('Tanggal Pengadaan', header_cell_style),
