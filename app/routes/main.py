@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
 from datetime import date
 from app import db
 from app.aset_tetap.forms import LaporanKerusakanPublicForm
@@ -23,11 +23,40 @@ def _build_aset_choices():
     ]
 
 
+def _build_nama_pengguna_choices():
+    """Ambil nama pengguna yang unik dari aset_tetap yang tidak kosong"""
+    aset_list = AsetTetap.query.filter(
+        AsetTetap.nama_pengguna.isnot(None),
+        AsetTetap.nama_pengguna != ''
+    ).distinct(AsetTetap.nama_pengguna).all()
+    
+    nama_list = sorted(list(set([a.nama_pengguna for a in aset_list])))
+    return [('', '-- Pilih Nama Pengguna --')] + [(name, name) for name in nama_list]
+
+
+@bp.route('/api/aset-by-pengguna/<nama_pengguna>')
+def get_aset_by_pengguna(nama_pengguna):
+    """API endpoint untuk mendapatkan list aset berdasarkan nama pengguna"""
+    aset_list = AsetTetap.query.filter_by(nama_pengguna=nama_pengguna).all()
+    
+    result = []
+    for aset in aset_list:
+        result.append({
+            'id': aset.id,
+            'kode_aset': aset.kode_aset,
+            'nama_aset': aset.nama_aset,
+            'tempat_penggunaan': aset.tempat_penggunaan or '',
+        })
+    
+    return jsonify(result)
+
+
 @bp.route('/lapor-kerusakan', methods=['GET', 'POST'])
 @bp.route('/user/lapor-kerusakan', methods=['GET', 'POST'])
 def lapor_kerusakan_public():
     form = LaporanKerusakanPublicForm()
     form.aset_tetap_id.choices = _build_aset_choices()
+    form.nama_pengguna.choices = _build_nama_pengguna_choices()
 
     if request.method == 'GET':
         aset_id = request.args.get('aset_id', type=int)

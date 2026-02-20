@@ -65,7 +65,7 @@
 
             <div class="mb-3">
               {{ form.nama_pengguna.label(class="form-label fw-bold") }}
-              {{ form.nama_pengguna(class="form-control", placeholder="Nama pengguna/pemakai") }}
+              {{ form.nama_pengguna(class="form-select") }}
               {% if form.nama_pengguna.errors %}
               <div class="text-danger small mt-1">
                 {% for error in form.nama_pengguna.errors %}
@@ -128,4 +128,50 @@
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const namaPenggunaSelect = document.getElementById('nama_pengguna');
+  const asetSelect = document.getElementById('aset_tetap_id');
+  const lokasiInput = document.getElementById('lokasi');
+
+  // Handle nama pengguna change
+  namaPenggunaSelect.addEventListener('change', async function() {
+    const namaPengguna = this.value.trim();
+    
+    if (!namaPengguna) {
+      // Reset jika kosong
+      asetSelect.value = '0';
+      lokasiInput.value = '';
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/aset-by-pengguna/${encodeURIComponent(namaPengguna)}`);
+      const asetList = await response.json();
+
+      if (asetList.length > 0) {
+        const aset = asetList[0]; // Ambil data aset pertama
+        
+        // Auto-fill aset_tetap_id
+        const option = Array.from(asetSelect.options).find(opt => opt.value == aset.id);
+        if (option) {
+          asetSelect.value = aset.id;
+        }
+        
+        // Auto-fill lokasi
+        lokasiInput.value = aset.tempat_penggunaan;
+      } else {
+        // Jika tidak ada aset, reset field
+        asetSelect.value = '0';
+        lokasiInput.value = '';
+      }
+    } catch (error) {
+      console.error('Error fetching aset data:', error);
+      asetSelect.value = '0';
+      lokasiInput.value = '';
+    }
+  });
+});
+</script>
 {% endblock %}

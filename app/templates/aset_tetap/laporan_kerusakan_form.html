@@ -42,7 +42,38 @@
 
             <div class="mb-3">
               {{ form.nama_pengguna.label(class="form-label fw-bold") }}
-              {{ form.nama_pengguna(class="form-control", placeholder="Nama pengguna/pemakai") }}
+              {{ form.nama_pengguna(class="form-control", placeholder="Pilih atau ketik nama pengguna", list="daftar_nama_pengguna") }}
+              <datalist id="daftar_nama_pengguna">
+                <option value="Rasman, S.Sos.">
+                <option value="Dr. Iskandar, S.Sos.MM">
+                <option value="Darmiati, S.Sos.,MM.">
+                <option value="A. Milu Marguna, S.Sos.MM">
+                <option value="Asmawati Mile, S.Sos.">
+                <option value="Sangiasseri Abubakar, S.Hum">
+                <option value="Hasmaliati, S.Sos">
+                <option value="Masnah, S. Sos">
+                <option value="Hasyim, S.Sos. M.Si">
+                <option value="Trimurtiati, S.Sos">
+                <option value="Nur Hasnah, S.H., M.IP">
+                <option value="Zohrah Djohan,S.I.P">
+                <option value="Rosmini">
+                <option value="Darmawati, S.Sos">
+                <option value="Darmawati Nembo, A.Md">
+                <option value="Hatijah, A.Md">
+                <option value="Nasyir Nompo S. Sos">
+                <option value="Andi Nasri Abduh,S.Sos., M.Hum">
+                <option value="Wahyuni Aras, S.AP., M.Ikom">
+                <option value="Tadius Tangnga">
+                <option value="Kamaluddin M., S.IP., M.Hum.">
+                <option value="Nuraeda,S.Sos">
+                <option value="Erwiyanti, S.IP.">
+                <option value="A.Nurjannah S.Kom">
+                <option value="Nurul Fitrihasari Ramadhani">
+                <option value="A. Nur Fadillah, S. IP">
+                <option value="Siti Fathirah Suciaty, ST">
+                <option value="Chandra Risma Adri, S.Kom">
+                <option value="Muh Takdim">
+              </datalist>
               {% if form.nama_pengguna.errors %}
               <div class="text-danger small mt-1">
                 {% for error in form.nama_pengguna.errors %}

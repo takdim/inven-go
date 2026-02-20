@@ -3,6 +3,39 @@ from wtforms import StringField, IntegerField, SubmitField, SelectField, TextAre
 from wtforms.validators import DataRequired, Length, ValidationError, Optional, NumberRange
 from app.models.aset_tetap import AsetTetap
 
+# Daftar nama pengguna/pemakai aset
+DAFTAR_NAMA_PENGGUNA = [
+    'Rasman, S.Sos.',
+    'Dr. Iskandar, S.Sos.MM',
+    'Darmiati, S.Sos.,MM.',
+    'A. Milu Marguna, S.Sos.MM',
+    'Asmawati Mile, S.Sos.',
+    'Sangiasseri Abubakar, S.Hum',
+    'Hasmaliati, S.Sos',
+    'Masnah, S. Sos',
+    'Hasyim, S.Sos. M.Si',
+    'Trimurtiati, S.Sos',
+    'Nur Hasnah, S.H., M.IP',
+    'Zohrah Djohan,S.I.P',
+    'Rosmini',
+    'Darmawati, S.Sos',
+    'Darmawati Nembo, A.Md',
+    'Hatijah, A.Md',
+    'Nasyir Nompo S. Sos',
+    'Andi Nasri Abduh,S.Sos., M.Hum',
+    'Wahyuni Aras, S.AP., M.Ikom',
+    'Tadius Tangnga',
+    'Kamaluddin M., S.IP., M.Hum.',
+    'Nuraeda,S.Sos',
+    'Erwiyanti, S.IP.',
+    'A.Nurjannah S.Kom',
+    'Nurul Fitrihasari Ramadhani',
+    'A. Nur Fadillah, S. IP',
+    'Siti Fathirah Suciaty, ST',
+    'Chandra Risma Adri, S.Kom',
+    'Muh Takdim'
+]
+
 class AsetTetapForm(FlaskForm):
     kode_aset = StringField('Kode Aset', validators=[
         DataRequired(message='Kode aset wajib diisi'),
@@ -85,10 +118,7 @@ class LaporanKerusakanPublicForm(FlaskForm):
     tanggal_diketahui_rusak = DateField('Tanggal Diketahui Rusak', validators=[
         DataRequired(message='Tanggal diketahui rusak wajib diisi')
     ])
-    nama_pengguna = StringField('Nama Pengguna', validators=[
-        DataRequired(message='Nama pengguna wajib diisi'),
-        Length(max=255, message='Nama pengguna maksimal 255 karakter')
-    ])
+    nama_pengguna = SelectField('Nama Pengguna', choices=[], validators=[DataRequired(message='Nama pengguna wajib dipilih')])
     lokasi = StringField('Lokasi', validators=[
         DataRequired(message='Lokasi wajib diisi'),
         Length(max=255, message='Lokasi maksimal 255 karakter')
