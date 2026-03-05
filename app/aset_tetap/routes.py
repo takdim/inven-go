@@ -236,6 +236,7 @@ def laporan_kerusakan_edit(id):
     laporan = LaporanKerusakan.query.get_or_404(id)
     aset = laporan.aset_tetap
     form = LaporanKerusakanForm(obj=laporan)
+    status_lama = laporan.status
 
     if form.validate_on_submit():
         laporan.tanggal_diketahui_rusak = form.tanggal_diketahui_rusak.data
@@ -247,7 +248,9 @@ def laporan_kerusakan_edit(id):
         laporan.tindakan = form.tindakan.data
         laporan.kondisi_saat_ini = form.kondisi_saat_ini.data
         laporan.dampak = form.dampak.data
-        laporan.status = form.status.data
+        
+        status_baru = form.status.data
+        laporan.status = status_baru
         db.session.commit()
 
         flash('Laporan kerusakan berhasil diperbarui!', 'success')

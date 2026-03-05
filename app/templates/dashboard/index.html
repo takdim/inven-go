@@ -89,6 +89,82 @@
     </div>
   </div>
 
+  <!-- Alert: Laporan Kerusakan Pending -->
+  {% if laporan_pending > 0 %}
+  <div class="row mb-4">
+    <div class="col-12">
+      <div
+        class="alert alert-danger alert-dismissible fade show shadow-sm"
+        role="alert"
+      >
+        <h5 class="alert-heading">
+          <i class="fas fa-tools"></i>
+          <strong>{{ laporan_pending }} Laporan Kerusakan Menunggu Penanganan!</strong>
+        </h5>
+        <hr />
+        <p class="mb-2">
+          Ada laporan kerusakan aset yang telah masuk dan memerlukan penanganan segera.
+        </p>
+        <div class="mb-3">
+          {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('dashboard.laporan_kerusakan_monitor', status='terkirim') }}" class="btn btn-sm btn-danger">
+              <i class="fas fa-list"></i> Lihat Daftar Laporan
+            </a>
+          {% else %}
+            <p class="mb-0 small text-muted">
+              <i class="fas fa-info-circle"></i> Hubungi admin untuk penanganan laporan kerusakan.
+            </p>
+          {% endif %}
+        </div>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Alert: Permintaan Barang Pending -->
+  {% if permintaan_pending > 0 %}
+  <div class="row mb-4">
+    <div class="col-12">
+      <div
+        class="alert alert-info alert-dismissible fade show shadow-sm"
+        role="alert"
+      >
+        <h5 class="alert-heading">
+          <i class="fas fa-shopping-cart"></i>
+          <strong>{{ permintaan_pending }} Permintaan Barang Menunggu Penanganan!</strong>
+        </h5>
+        <hr />
+        <p class="mb-2">
+          Ada permintaan barang ATK yang telah masuk dan memerlukan penanganan segera.
+        </p>
+        <div class="mb-3">
+          {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('dashboard.permintaan_barang_monitor', status='terkirim') }}" class="btn btn-sm btn-info">
+              <i class="fas fa-list"></i> Lihat Daftar Permintaan
+            </a>
+          {% else %}
+            <p class="mb-0 small text-muted">
+              <i class="fas fa-info-circle"></i> Hubungi admin untuk penanganan permintaan barang.
+            </p>
+          {% endif %}
+        </div>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
   <!-- Alert: Barang Habis Pakai Stok Rendah -->
   {% if barang_habis_pakai_rendah %}
   <div class="row mb-4">
@@ -263,6 +339,183 @@
           {% endif %}
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Laporan Kerusakan Terbaru -->
+  <div class="row">
+    <div class="col-12 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="fas fa-file-alt"></i> Laporan Kerusakan Terbaru
+            </h5>
+            {% if laporan_minggu_ini > 0 %}
+            <span class="badge bg-warning text-dark">
+              {{ laporan_minggu_ini }} minggu ini
+            </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card-body">
+          {% if laporan_terbaru %}
+          <div class="table-responsive">
+            <table class="table table-sm table-hover">
+              <thead>
+                <tr>
+                  <th>Pelapor</th>
+                  <th>Lokasi</th>
+                  <th>Jenis Kerusakan</th>
+                  <th>Tanggal</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for laporan in laporan_terbaru[:10] %}
+                <tr>
+                  <td><strong>{{ laporan.nama_pengguna }}</strong></td>
+                  <td>{{ laporan.lokasi|truncate(20) }}</td>
+                  <td>
+                    <small>{{ laporan.jenis_kerusakan|truncate(30) }}</small>
+                  </td>
+                  <td>
+                    <small class="text-muted">
+                      {{ laporan.tanggal_diketahui_rusak.strftime('%d %b %Y') }}
+                    </small>
+                  </td>
+                  <td>
+                    <span class="badge 
+                      {% if laporan.status == 'draft' %}bg-secondary
+                      {% elif laporan.status == 'terkirim' %}bg-danger
+                      {% elif laporan.status == 'selesai' %}bg-success
+                      {% elif laporan.status == 'ditolak' %}bg-info
+                      {% endif %}">
+                      {{ laporan.status|replace('_', ' ')|title }}
+                    </span>
+                  </td>
+                  <td>
+                    <a
+                      href="{{ url_for('aset_tetap.laporan_kerusakan_list', aset_id=laporan.aset_tetap_id) }}"
+                      class="btn btn-sm btn-outline-primary"
+                      title="Lihat Detail"
+                    >
+                      <i class="fas fa-eye"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-muted text-center mb-0">
+            <i class="fas fa-inbox"></i> Belum ada laporan kerusakan
+          </p>
+          {% endif %}
+        </div>
+        {% if laporan_terbaru|length > 0 %}
+        <div class="card-footer bg-light">
+          {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('dashboard.laporan_kerusakan_monitor') }}" class="btn btn-sm btn-outline-primary">
+              <i class="fas fa-list"></i> Lihat Semua Laporan
+            </a>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Permintaan Barang Terbaru -->
+<div class="row">
+  <div class="col-12 mb-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-info text-white">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <i class="fas fa-shopping-cart"></i> Permintaan Barang Terbaru
+          </h5>
+          {% if permintaan_pending > 0 %}
+          <span class="badge bg-warning text-dark">
+            {{ permintaan_pending }} pending
+          </span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="card-body">
+        {% if permintaan_terbaru %}
+        <div class="table-responsive">
+          <table class="table table-sm table-hover">
+            <thead>
+              <tr>
+                <th>Peminta</th>
+                <th>Barang 1</th>
+                <th>Jumlah</th>
+                <th>Tempat Penggunaan</th>
+                <th>Tanggal</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for permintaan in permintaan_terbaru[:10] %}
+              <tr>
+                <td><strong>{{ permintaan.nama_pengguna }}</strong></td>
+                <td>
+                  <small>{{ permintaan.barang1.nama_barang }}</small>
+                  {% if permintaan.barang2 %}
+                  <br><small class="text-muted">{{ permintaan.barang2.nama_barang }}</small>
+                  {% endif %}
+                  {% if permintaan.barang3 %}
+                  <br><small class="text-muted">{{ permintaan.barang3.nama_barang }}</small>
+                  {% endif %}
+                </td>
+                <td>
+                  <small>{{ permintaan.banyaknya1 }}</small>
+                  {% if permintaan.barang2 %}
+                  <br><small class="text-muted">{{ permintaan.banyaknya2 }}</small>
+                  {% endif %}
+                  {% if permintaan.barang3 %}
+                  <br><small class="text-muted">{{ permintaan.banyaknya3 }}</small>
+                  {% endif %}
+                </td>
+                <td>{{ permintaan.tempat_penggunaan|truncate(20) }}</td>
+                <td>
+                  <small class="text-muted">
+                    {{ permintaan.tanggal.strftime('%d %b %Y') }}
+                  </small>
+                </td>
+                <td>
+                  <span class="badge 
+                    {% if permintaan.status == 'terkirim' %}bg-info
+                    {% elif permintaan.status == 'selesai' %}bg-success
+                    {% elif permintaan.status == 'ditolak' %}bg-secondary
+                    {% endif %}">
+                    {{ permintaan.status|replace('_', ' ')|title }}
+                  </span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center mb-0">
+          <i class="fas fa-inbox"></i> Belum ada permintaan barang
+        </p>
+        {% endif %}
+      </div>
+      {% if permintaan_terbaru|length > 0 %}
+      <div class="card-footer bg-light">
+        {% if current_user.role == 'admin' %}
+          <a href="{{ url_for('dashboard.permintaan_barang_monitor') }}" class="btn btn-sm btn-outline-info">
+            <i class="fas fa-list"></i> Lihat Semua Permintaan
+          </a>
+        {% endif %}
+      </div>
+      {% endif %}
     </div>
   </div>
 </div>

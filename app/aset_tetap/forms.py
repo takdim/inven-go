@@ -29,7 +29,7 @@ DAFTAR_NAMA_PENGGUNA = [
     'Nuraeda,S.Sos',
     'Erwiyanti, S.IP.',
     'A.Nurjannah S.Kom',
-    'Nurul Fitrihasari Ramadhani',
+    'Nurul Fitrihasari Ramadhani S.Kom.,M.Kom',
     'A. Nur Fadillah, S. IP',
     'Siti Fathirah Suciaty, ST',
     'Chandra Risma Adri, S.Kom',

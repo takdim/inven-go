@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} - Inven-Go{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">{{ title }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form.nama_pengguna.label(class="form-label") }}
+                            {{ form.nama_pengguna(class="form-select") }}
+                            {% if form.nama_pengguna.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.nama_pengguna.errors %}
+                                        <div><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    {{ form.nama_barang1.label(class="form-label") }}
+                                    {{ form.nama_barang1(class="form-select") }}
+                                    {% if form.nama_barang1.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.nama_barang1.errors %}
+                                                <div><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <small class="text-muted">Pilih barang ATK yang tersedia</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.banyaknya1.label(class="form-label") }}
+                                {{ form.banyaknya1(class="form-control", type="number", min="1") }}
+                                {% if form.banyaknya1.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.banyaknya1.errors %}
+                                            <div><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                {{ form.nama_barang2.label(class="form-label") }}
+                                {{ form.nama_barang2(class="form-select") }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.banyaknya2.label(class="form-label") }}
+                                {{ form.banyaknya2(class="form-control", type="number", min="1") }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                {{ form.nama_barang3.label(class="form-label") }}
+                                {{ form.nama_barang3(class="form-select") }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.banyaknya3.label(class="form-label") }}
+                                {{ form.banyaknya3(class="form-control", type="number", min="1") }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.tempat_penggunaan.label(class="form-label") }}
+                            {{ form.tempat_penggunaan(class="form-control") }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.tanggal.label(class="form-label") }}
+                            {{ form.tanggal(class="form-control", type="date") }}
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('dashboard.permintaan_barang_monitor') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Kembali
+                            </a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

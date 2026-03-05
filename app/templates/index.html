@@ -3,9 +3,14 @@ block content %}
 <div class="hero">
   <h2>Selamat Datang di Inven-Go</h2>
   <p>Sistem Manajemen Inventori Modern</p>
-  <a href="{{ url_for('main.lapor_kerusakan_public') }}" class="btn btn-light btn-lg mt-3">
-    <i class="fas fa-tools me-2"></i>Lapor Kerusakan Tanpa Login
-  </a>
+  <div class="mt-3">
+    <a href="{{ url_for('main.lapor_kerusakan_public') }}" class="btn btn-light btn-lg me-2">
+      <i class="fas fa-tools me-2"></i>Lapor Kerusakan Tanpa Login
+    </a>
+    <a href="{{ url_for('main.permintaan_barang_public') }}" class="btn btn-light btn-lg">
+      <i class="fas fa-shopping-cart me-2"></i>Permintaan ATK
+    </a>
+  </div>
 </div>
 
 <div class="features">

@@ -2,8 +2,11 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for,
 from datetime import date
 from app import db
 from app.aset_tetap.forms import LaporanKerusakanPublicForm
+from app.barang.forms import PermintaanBarangPublicForm
 from app.models.aset_tetap import AsetTetap
 from app.models.laporan_kerusakan import LaporanKerusakan
+from app.models.permintaan_barang import PermintaanBarang
+from app.models.barang import Barang
 
 bp = Blueprint('main', __name__)
 
@@ -103,3 +106,61 @@ def lapor_kerusakan_public():
         return redirect(url_for('main.lapor_kerusakan_public'))
 
     return render_template('laporan_kerusakan_public.html', form=form, title='Lapor Kerusakan Aset')
+
+
+@bp.route('/permintaan-barang', methods=['GET', 'POST'])
+@bp.route('/user/permintaan-barang', methods=['GET', 'POST'])
+def permintaan_barang_public():
+    form = PermintaanBarangPublicForm()
+    
+    # Build choices for barang select fields
+    barang_choices = [(0, '-- Pilih Barang --')] + [
+        (b.id, f'{b.kode_barang} - {b.nama_barang} (Stok: {b.get_stok_akhir()})')
+        for b in Barang.query.filter_by(kategori_id=3).order_by(Barang.kode_barang).all()
+    ]
+    
+    form.nama_barang1.choices = barang_choices
+    form.nama_barang2.choices = [(0, '-- Pilih Barang --')] + barang_choices[1:]  # Skip the first choice
+    form.nama_barang3.choices = [(0, '-- Pilih Barang --')] + barang_choices[1:]  # Skip the first choice
+
+    if request.method == 'GET':
+        if not form.tanggal.data:
+            form.tanggal.data = date.today()
+
+    if form.validate_on_submit():
+        if form.nama_barang1.data == 0:
+            flash('Barang 1 wajib dipilih.', 'danger')
+            return render_template('permintaan_barang_public.html', form=form, title='Permintaan Barang Inventaris')
+
+        # Validate that selected barangs are different
+        selected_barangs = [form.nama_barang1.data]
+        if form.nama_barang2.data and form.nama_barang2.data != 0:
+            if form.nama_barang2.data in selected_barangs:
+                flash('Barang 2 tidak boleh sama dengan barang lainnya.', 'danger')
+                return render_template('permintaan_barang_public.html', form=form, title='Permintaan ATK')
+            selected_barangs.append(form.nama_barang2.data)
+        
+        if form.nama_barang3.data and form.nama_barang3.data != 0:
+            if form.nama_barang3.data in selected_barangs:
+                flash('Barang 3 tidak boleh sama dengan barang lainnya.', 'danger')
+                return render_template('permintaan_barang_public.html', form=form, title='Permintaan ATK')
+
+        permintaan = PermintaanBarang(
+            nama_pengguna=form.nama_pengguna.data,
+            barang1_id=form.nama_barang1.data,
+            banyaknya1=form.banyaknya1.data,
+            barang2_id=form.nama_barang2.data if form.nama_barang2.data and form.nama_barang2.data != 0 else None,
+            banyaknya2=form.banyaknya2.data if form.nama_barang2.data and form.nama_barang2.data != 0 else None,
+            barang3_id=form.nama_barang3.data if form.nama_barang3.data and form.nama_barang3.data != 0 else None,
+            banyaknya3=form.banyaknya3.data if form.nama_barang3.data and form.nama_barang3.data != 0 else None,
+            tempat_penggunaan=form.tempat_penggunaan.data,
+            tanggal=form.tanggal.data,
+            status='terkirim'
+        )
+        db.session.add(permintaan)
+        db.session.commit()
+
+        flash('Permintaan barang berhasil dikirim.', 'success')
+        return redirect(url_for('main.permintaan_barang_public'))
+
+    return render_template('permintaan_barang_public.html', form=form, title='Permintaan ATK')

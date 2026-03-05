@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">{{ title }}</h4>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form.nama_pengguna.label(class="form-label") }}
+                            {{ form.nama_pengguna(class="form-select") }}
+                            {% if form.nama_pengguna.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.nama_pengguna.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    {{ form.nama_barang1.label(class="form-label") }}
+                                    {{ form.nama_barang1(class="form-control") }}
+                                    {% if form.nama_barang1.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.nama_barang1.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <small class="text-muted">Pilih barang ATK yang tersedia</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    {{ form.banyaknya1.label(class="form-label") }}
+                                    {{ form.banyaknya1(class="form-control") }}
+                                    {% if form.banyaknya1.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.banyaknya1.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    {{ form.nama_barang2.label(class="form-label") }}
+                                    {{ form.nama_barang2(class="form-control") }}
+                                    {% if form.nama_barang2.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.nama_barang2.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <small class="text-muted">Opsional - kosongkan jika tidak diperlukan</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    {{ form.banyaknya2.label(class="form-label") }}
+                                    {{ form.banyaknya2(class="form-control") }}
+                                    {% if form.banyaknya2.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.banyaknya2.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    {{ form.nama_barang3.label(class="form-label") }}
+                                    {{ form.nama_barang3(class="form-control") }}
+                                    {% if form.nama_barang3.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.nama_barang3.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <small class="text-muted">Opsional - kosongkan jika tidak diperlukan</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    {{ form.banyaknya3.label(class="form-label") }}
+                                    {{ form.banyaknya3(class="form-control") }}
+                                    {% if form.banyaknya3.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.banyaknya3.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.tempat_penggunaan.label(class="form-label") }}
+                            {{ form.tempat_penggunaan(class="form-control") }}
+                            {% if form.tempat_penggunaan.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.tempat_penggunaan.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.tanggal.label(class="form-label") }}
+                            {{ form.tanggal(class="form-control") }}
+                            {% if form.tanggal.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.tanggal.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
